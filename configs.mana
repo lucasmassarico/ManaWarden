@@ -1,0 +1,22 @@
+debug_mode=True
+
+hotkey_to_cast_spell=
+
+# Blank Runes Move
+move_blank_rune_region=[(1828, 125, 29, 29)]
+
+# Regions
+panels_region=[(2, 2, 351, 1006), (1567, 1, 343, 1009)]
+map_region=[(356, 24, 1208, 884)]
+mini_map_region=
+equipment_region=
+battle_region=
+
+fishing_rod_path="../assets/templates/fishing_rod.png"
+fishing_rod_threshold=0.5
+water_path="../assets/templates/water_74.png"
+water_threshold=0.8
+
+item_path_1="../assets/templates/hmm.png"
+item_threshold_1=0.8
+destination_region_1=(937, 443, 25, 27)

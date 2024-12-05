@@ -1,0 +1,5 @@
+pyinstaller --onefile --windowed --icon "rune.png" main.py
+
+pyinstaller --windowed --icon "rune.png" --name "MeuPrograma" main.py
+
+pyinstaller --windowed --icon "rune.png" --name "MeuPrograma" --add-data "assets;assets" main.py

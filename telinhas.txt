@@ -1,0 +1,406 @@
+Olá Chat. Tudo bem?
+
+Gostaria que nessa conversa, você agisse como um especialista em automação de python. Irei precisar implementar tanto as telas, quanto os scripts dessa automação. Abaixo irei explicar a funcionalidade da aplicação.
+
+A ideia é que a aplicação, será aclopada a algum processo rodando no ambient windows (do usuário, não do sistema), processo no qual, o usuário irá escolher. Ao escolher. Ele irá Abrir a tela principal da aplicação, que deve possuir algumas funcionalidades.
+
+1) Mover Blank rune para a mão.
+2) Soltar spell a cada determinado tempo em segundos (com randomização leve de tempo para não ficar previsivel). Isso funcionaria através de apertar algum botão (hotkey) desejado. 
+
+def press_key(window_handle, key_to_press):
+    """Simula o pressionamento de uma tecla em uma janela específica."""
+    win32api.PostMessage(window_handle, win32con.WM_KEYDOWN, ord(key_to_press), 0)
+    time.sleep(0.2)
+    win32api.PostMessage(window_handle, win32con.WM_KEYUP, ord(key_to_press), 0)
+
+3) Pescar peixe, clicando com o direito na vara de pesca e com o esquerdo na água do jogo.
+4) Comer comida, clicando quantas vezes necessário a cada x tempo (em segundos).
+
+Essa são as primeiras funções que desejo que a automação tenha. Primeiramente, não gostaria que você implementasse nada. Irei te passar as libs que gostaria de usar, já que possuo uma parte do código feita.
+
+Gostaria que a aplicação fosse feita com Programação orientada a objetos, utilizando a lib PySyde6 para fazer as telas. Ctypes (windows api) para realizar os cliques na aplicação "injetada", threading (para separar os loops de execuções) e keyboard para os shortcuts.
+
+Segue algum dos códigos já existentes, porém será necessário adaptação e refatoração. 
+
+def moveTo(hwnd, x: int, y: int):
+    lParam = (y << 16) | x
+    ctypes.windll.user32.PostMessageW(hwnd, WM_MOUSEMOVE, MK_LBUTTON, lParam)
+
+
+def click(hwnd, x: int, y: int, button="left"):
+    lParam = (y << 16) | x
+    if button == "left":
+        ctypes.windll.user32.SendMessageW(hwnd, WM_LBUTTONDOWN, 1, lParam)
+        time.sleep(0.1)
+        ctypes.windll.user32.SendMessageW(hwnd, WM_LBUTTONUP, 0, lParam)
+        return
+    ctypes.windll.user32.SendMessageW(hwnd, WM_RBUTTONDOWN, 1, lParam)
+    time.sleep(0.1)
+    ctypes.windll.user32.SendMessageW(hwnd, WM_RBUTTONUP, 1, lParam)
+
+Esses códigos funcionam para realizar os cliques diretamente na janela desejada. O código abaixo, seria necessário adapta-lo, pois ele realiza o movimento de arrasta o clique do mouse:
+
+def perform_drag_and_drop(window_handle, start_x, start_y, dest_x, dest_y, steps=50, delay=0.01):
+    """Simula o drag and drop usando win32api.PostMessage."""
+    # Enviar mensagem de mouse down no ponto inicial
+    l_param_start = win32api.MAKELONG(start_x, start_y)
+    win32api.PostMessage(window_handle, win32con.WM_LBUTTONDOWN, win32con.MK_LBUTTON, l_param_start)
+    time.sleep(0.1)  # Pequena pausa
+
+    # Simula o movimento do mouse para o destino
+    for i in range(steps):
+        # Calcula a posição intermediária
+        interp_x = int(start_x + (dest_x - start_x) * (i + 1) / steps)
+        interp_y = int(start_y + (dest_y - start_y) * (i + 1) / steps)
+        l_param_move = win32api.MAKELONG(interp_x, interp_y)
+        win32api.PostMessage(window_handle, win32con.WM_MOUSEMOVE, win32con.MK_LBUTTON, l_param_move)
+        time.sleep(delay)  # Ajuste se necessário
+
+    # Enviar mensagem de mouse up no ponto final
+    l_param_end = win32api.MAKELONG(dest_x, dest_y)
+    win32api.PostMessage(window_handle, win32con.WM_LBUTTONUP, None, l_param_end)
+
+Ele é utilizado para mover a blank rune para a mão, por exemplo. 
+Todos os códigos acima, se forem possiveis realizar com o win32api, win32con e win32gui, pode ser utilizado. Além disso, não quero utilizar o pyautogui, para interpretar os elementos da tela e sim, os seguintes códigos:
+
+
+//screen.py
+import numpy as np
+from ctypes import windll
+import win32gui
+import win32ui
+import cv2
+
+
+WINDOW_TITLE = "Projetor em janela (fonte) - Captura de jogo"
+HWND = win32gui.FindWindow(None, WINDOW_TITLE)
+print('HWND ->', HWND)
+
+class WindowScreenshot:
+    def __init__(self):
+        self.hwnd_dc = None
+        self.mfc_dc = None
+        self.save_dc = None
+        self.bitmap = None
+        self.result = None
+        self.bmpinfo = None
+        self.bmpstr = None
+        self._valid_dc = False
+
+    def __enter__(self):
+        if win32gui.IsWindow(HWND):
+            self.hwnd_dc = win32gui.GetWindowDC(HWND)
+            if self.hwnd_dc != 0:
+                try:
+                    left, top, right, bottom = win32gui.GetClientRect(HWND)
+                    w = right - left
+                    h = bottom - top
+                    self.mfc_dc = win32ui.CreateDCFromHandle(self.hwnd_dc)
+                    self.save_dc = self.mfc_dc.CreateCompatibleDC()
+                    self.bitmap = win32ui.CreateBitmap()
+                    self.bitmap.CreateCompatibleBitmap(self.mfc_dc, w, h)
+                    self.save_dc.SelectObject(self.bitmap)
+                    self.result = windll.user32.PrintWindow(HWND, self.save_dc.GetSafeHdc(), 3)
+                    self.bmpinfo = self.bitmap.GetInfo()
+                    self.bmpstr = self.bitmap.GetBitmapBits(True)
+
+                    self._valid_dc = True
+                except win32ui.error as e:
+                    win32gui.ReleaseDC(HWND, self.hwnd_dc)
+                    self.mfc_dc = None
+                    self._valid_dc = False
+            else:
+                print('Error HWND_DC is 0')
+                win32gui.ReleaseDC(HWND, self.hwnd_dc)
+                self.mfc_dc = None
+                self._valid_dc = False
+
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        import pywintypes
+        if self.mfc_dc is not None:
+            try:
+                if self.mfc_dc.GetSafeHdc() != 0:
+                    self.mfc_dc.DeleteDC()
+            except pywintypes.error as e:
+                print(f"Error deleting device context: {e}")
+
+        if self.save_dc is not None:
+            try:
+                # Check if the PyCDC object is None
+                if self.save_dc.GetSafeHdc() != 0:
+                    self.save_dc.DeleteDC()
+            except pywintypes.error as e:
+                print(f"Error deleting device context: {e}")
+        win32gui.ReleaseDC(HWND, self.hwnd_dc)
+        if self.bitmap is not None:
+            try:
+                # Directly access the handle attribute of the bitmap
+                handle = getattr(self.bitmap, 'GetHandle', None)
+                # Check if the handle is not None and has a valid handle
+                try:
+                    if handle and handle() and handle() != 0:
+                        win32gui.DeleteObject(handle())
+                except:
+                    pass
+            except pywintypes.error as e:
+                print(f"Error deleting bitmap: {e}")
+
+    def is_dc_valid(self):
+        return self._valid_dc
+
+    def get_screenshot(self, region=None, dimanesion=True):
+        if not self.is_dc_valid():
+            return None  # Indicate failure without raising an exception
+        if region:
+            x, y, width, height = region['left'], region['top'], region['width'], region['height']
+        windll.user32.SetProcessDPIAware()
+        img = np.frombuffer(self.bmpstr, dtype=np.uint8).reshape((self.bmpinfo["bmHeight"], self.bmpinfo["bmWidth"], 4))
+        img = np.ascontiguousarray(img)[..., :-1]
+        img = cv2.cvtColor(img, cv2.COLOR_BGRA2BGR)
+        if self.mfc_dc.GetSafeHdc() != 0:
+            self.mfc_dc.DeleteDC()
+        if self.save_dc.GetSafeHdc() != 0:
+            self.save_dc.DeleteDC()
+        win32gui.ReleaseDC(HWND, self.hwnd_dc)
+        win32gui.DeleteObject(self.bitmap.GetHandle())
+        if region:
+            if dimanesion:
+                full_img = img
+                black_img = np.zeros_like(full_img)
+                black_img[y:y+height, x:x+width] = full_img[y:y+height, x:x+width]
+                return black_img
+            return img[y:y+height, x:x+width]
+        return img
+
+def find_image(main_image, template):
+    r_template = cv2.imread(template)
+    if r_template is None:
+        raise ValueError("Template image not found or unable to load.")
+    if not isinstance(main_image, np.ndarray) or len(main_image.shape) != 3:
+        raise ValueError("main_image must be a numpy.ndarray with 3 dimensions (height, width, channels).")
+    res = cv2.matchTemplate(main_image, r_template, cv2.TM_CCOEFF_NORMED)
+    threshold = 0.8
+    loc = np.where(res >= threshold)
+    w, h = r_template.shape[1], r_template.shape[0]
+    result = None
+    for pt in zip(*loc[::-1]):
+        top_left = pt
+        bottom_right = (pt[0] + w, pt[1] + h)
+        # Calcula o centro da imagem encontrada
+        center_x = pt[0] + w // 2
+        center_y = pt[1] + h // 2
+        result = (center_x, center_y)
+        break
+
+    if result:
+        # cv2.rectangle(main_image, top_left, bottom_right, (0, 255, 0), 2)
+        # cv2.imshow("Found Image", main_image)
+        # cv2.waitKey(0)
+        # cv2.destroyAllWindows()
+        return result
+    return None
+
+def look_screen(region=None, dimanesion=True):
+    with WindowScreenshot() as img:
+        print('Procurando imagem')
+        result = img.get_screenshot(region, dimanesion)
+    return result
+
+//cut_img.py
+import tkinter as tk
+from PIL import ImageGrab, Image, ImageDraw, ImageTk
+import pyautogui
+import keyboard
+x_start, y_start, x_end, y_end = 0, 0, 0, 0
+drawing = False
+keyboard.wait('h')
+def on_move(event):
+    global x_end, y_end, drawing
+
+    if drawing:
+        x_end, y_end = event.x_root, event.y_root
+        draw_rectangle()
+
+def draw_rectangle():
+    screen_captured = ImageGrab.grab()
+    mask = Image.new('L', screen_captured.size, 50)
+    draw = ImageDraw.Draw(mask)
+    draw.rectangle([x_start, y_start, x_end, y_end], fill=255)
+    alpha = Image.new('L', screen_captured.size, 100)
+    alpha.paste(mask, (0, 0), mask=mask)
+
+    img = Image.composite(screen_captured, Image.new('RGB', screen_captured.size, 'white'), alpha)
+
+    img_tk = ImageTk.PhotoImage(img)
+    canvas.create_image(0, 0, image=img_tk, anchor=tk.NW)
+    canvas.img_tk = img_tk
+
+def on_click(event):
+    global x_start, y_start, drawing
+
+    x_start, y_start = event.x_root, event.y_root
+    drawing = True
+
+def finalizar_programa():
+    global x_start, y_start, x_end, y_end
+    x1, y1 = min(x_start, x_end), min(y_start, y_end)
+    x2, y2 = max(x_start, x_end), max(y_start, y_end)
+    width = x2 - x1
+    height = y2 - y1
+    value = {
+        'left': x1,
+        'top': y1,
+        'width': width,
+        'height': height
+    }
+    print(value)
+
+    root.withdraw()
+    img = pyautogui.screenshot(region=(x1, y1, width, height))
+    img.save('image.png')
+    root.deiconify() 
+
+    root.quit()
+def on_release(_):
+    global drawing
+
+    drawing = False
+    finalizar_programa()
+
+root = tk.Tk()
+root.overrideredirect(True) 
+root.attributes('-topmost', True) 
+root.geometry("{0}x{1}+0+0".format(root.winfo_screenwidth(), root.winfo_screenheight())) 
+root.attributes('-alpha', 0.5)  
+
+canvas = tk.Canvas(root, width=root.winfo_screenwidth(), height=root.winfo_screenheight(),  highlightthickness=0)
+canvas.pack()
+
+canvas.bind("<B1-Motion>", on_move)
+canvas.bind("<ButtonPress-1>", on_click)
+canvas.bind("<ButtonRelease-1>", on_release)
+
+root.mainloop()
+
+//main.py
+import ctypes
+import time
+import keyboard
+import pyautogui
+from screen import find_image, look_screen
+import cv2
+
+WM_KEYDOWN = 0x0100
+WM_KEYUP = 0x0101
+WM_MOUSEMOVE = 0x0200
+MK_LBUTTON = 0x0001
+
+WM_LBUTTONDOWN = 0x0201
+WM_LBUTTONUP = 0x0202
+WM_RBUTTONDOWN = 0x0204
+WM_RBUTTONUP = 0x0205
+
+
+F1 = 0x70
+F2 = 0x71
+F3 = 0x72
+F4 = 0x73
+F5 = 0x74
+F6 = 0x75
+F7 = 0x76
+F8 = 0x77
+F9 = 0x78
+F10 = 0x79
+F11 = 0x7A
+F12 = 0x7B 
+
+SCAN_F1= 0x3B
+SCAN_F2= 0x3C
+SCAN_F3= 0x3D
+SCAN_F4= 0x3E
+SCAN_F5= 0x3F
+SCAN_F6= 0x40
+SCAN_F7= 0x41
+SCAN_F8= 0x42
+SCAN_F9= 0x43
+SCAN_F10= 0x44
+SCAN_F11= 0x57
+SCAN_F12= 0x58
+SCAN_ENTER= 0x1C
+SCAN_CTROL= 0x1D
+SCAN_BACKSPACE= 0x0E
+SCAN_CAPS= 0x3A
+SCAN_NUNLOCK= 0x45
+SCAN_TAB= 0x0F
+SCAN_UP = 0xC8
+SCAN_LEFT = 0xCB
+SCAN_RIGHT = 0xCD
+SCAN_DOWN = 0xD0
+SCAN_ENTER = 0x1C
+SCAN_ESC = 0x01
+
+# funciona no tibia, otpokemon, pokemon doido
+# nao funciona no pxg
+def send_message_keyboard(hwnd, key_code):
+    ctypes.windll.user32.SendMessageW(hwnd, WM_KEYDOWN, key_code, 0)
+    time.sleep(0.2)
+    ctypes.windll.user32.SendMessageW(hwnd, WM_KEYUP, key_code, 0)
+
+hwnd = ctypes.windll.user32.FindWindowW(0, 'Tibia - Closefriends')
+
+def send_key_to_window(hwnd, scan_code):
+    lParam_down = (1 << 0) | (scan_code << 16)
+    lParam_up = (1 << 0) | (scan_code << 16) | (1 << 30) | (1 << 31)
+    ctypes.windll.user32.SendMessageW(hwnd, WM_KEYDOWN, scan_code, lParam_down)
+    time.sleep(0.2)
+    ctypes.windll.user32.SendMessageW(hwnd, WM_KEYUP, scan_code, lParam_up)
+
+def moveTo(hwnd, x, y):
+    x = int(x)
+    y = int(y)
+    lParam = (y << 16) | x
+    ctypes.windll.user32.PostMessageW(hwnd, WM_MOUSEMOVE, MK_LBUTTON, lParam)
+
+def click(hwnd, x, y, button='left'):
+    x = int(x)
+    y = int(y)
+    lParam = (y << 16) | x
+    if button == 'left':
+        ctypes.windll.user32.SendMessageW(hwnd, WM_LBUTTONDOWN, 1, lParam)
+        time.sleep(0.015)
+        ctypes.windll.user32.SendMessageW(hwnd, WM_LBUTTONUP, 0, lParam)
+        return
+    ctypes.windll.user32.SendMessageW(hwnd, WM_RBUTTONDOWN, 0, lParam)
+    time.sleep(0.015)
+    ctypes.windll.user32.SendMessageW(hwnd, WM_RBUTTONUP, 0, lParam)
+
+keyboard.wait('h')
+img = look_screen()
+result = find_image(img, 'image.png')
+print('result', result)
+# if result:
+#     moveTo(hwnd, result[0], result[1])
+#     click(hwnd, result[0], result[1], 'right')
+
+# cv2.imshow('test', img)
+# cv2.waitKey(0)
+# while True:
+#     print('esperando...')
+#     time.sleep(15)
+#     print('usando magia...')
+#     send_message_keyboard(hwnd, F3)
+#     print('comendo comida...')
+#     send_message_keyboard(hwnd, F6)
+
+
+Esses códigos, devem ser utilizados, pois quero que a automação funcione mesmo quando não esteja em foreground. A automação precisa se preocupar com alguns detalhes. Como o mouse é utilizado para realizar alguns movimentos, quando a automação for realizar o movimento e o mouse estiver na área da janela e estiver em foreground, realizar um freeze temporario nos inputs do usuário, podendo utilizar:
+
+BlockInput = ctypes.windll.user32.BlockInput
+BlockInput.argtypes = [wintypes.BOOL]
+BlockInput.restype = wintypes.BOOL
+
+Também, criar uma forma, de fila quando dois loops quiserem usar os inputs, exemplo: a automação quer mover a blank rune para a mão do personagem e também quer pescar e comer food. Ela deve seguir ordens de prioridades, exemplo: mover_blank_rune tem prioridade 1, comer food prioridade 2 e pescar prioridade 3, sendo a prioridade maior a ultima a ser feita. Além disso, caso duas ações tenha a mesma prioridade, entra na fila. Isso é extremamente importante.
+
+Nesse primeiro momento, me ajude a estruturar o projeto e você deve anotar as coisas importantes que usaremos futuramente. 

@@ -1,0 +1,359 @@
+2024-12-04 21:01:15,683 - INFO - Searching for the item_1
+2024-12-04 21:01:16,812 - INFO - Searching for the item_1
+2024-12-04 21:01:17,924 - INFO - Searching for the item_1
+2024-12-04 21:01:19,044 - INFO - Searching for the item_1
+2024-12-04 21:01:20,172 - INFO - Searching for the item_1
+2024-12-04 21:02:40,582 - INFO - Searching for the item_1
+2024-12-04 21:02:41,714 - INFO - Searching for the item_1
+2024-12-04 21:03:33,124 - INFO - Searching for the item_1
+2024-12-04 21:04:10,426 - INFO - Searching for the item_1
+2024-12-04 21:04:10,519 - INFO - Clicking in item at position (np.int64(1589), np.int64(350))
+2024-12-04 21:04:10,520 - INFO - Window in the foreground or mouse over window. Blocking user mouse input.
+2024-12-04 21:04:10,520 - INFO - Mouse unblocking.
+2024-12-04 21:04:10,573 - INFO - Using item at (909, 415)
+2024-12-04 21:04:10,628 - INFO - Item action completed.
+2024-12-04 21:04:11,689 - INFO - Searching for the item_1
+2024-12-04 21:04:11,770 - INFO - Clicking in item at position (np.int64(1589), np.int64(350))
+2024-12-04 21:04:11,770 - INFO - Window in the foreground or mouse over window. Blocking user mouse input.
+2024-12-04 21:04:11,770 - INFO - Mouse unblocking.
+2024-12-04 21:04:11,815 - INFO - Using item at (909, 415)
+2024-12-04 21:04:11,860 - INFO - Item action completed.
+2024-12-04 21:04:12,919 - INFO - Searching for the item_1
+2024-12-04 21:04:12,989 - INFO - Clicking in item at position (np.int64(1589), np.int64(350))
+2024-12-04 21:04:12,989 - INFO - Window in the foreground or mouse over window. Blocking user mouse input.
+2024-12-04 21:04:12,989 - INFO - Mouse unblocking.
+2024-12-04 21:04:13,045 - INFO - Using item at (909, 415)
+2024-12-04 21:04:13,103 - INFO - Item action completed.
+2024-12-04 21:06:18,106 - INFO - Searching for the item_1
+2024-12-04 21:06:18,177 - INFO - Clicking in item at position (np.int64(1589), np.int64(350))
+2024-12-04 21:06:18,177 - INFO - Window in the foreground or mouse over window. Blocking user mouse input.
+2024-12-04 21:06:18,177 - INFO - Mouse unblocking.
+2024-12-04 21:06:18,234 - INFO - Using item at (937, 443)
+2024-12-04 21:06:18,290 - INFO - Item action completed.
+2024-12-04 21:06:22,340 - INFO - Searching for the item_1
+2024-12-04 21:06:22,407 - INFO - Clicking in item at position (np.int64(1589), np.int64(350))
+2024-12-04 21:06:22,407 - INFO - Window in the foreground or mouse over window. Blocking user mouse input.
+2024-12-04 21:06:22,407 - INFO - Mouse unblocking.
+2024-12-04 21:06:22,457 - INFO - Using item at (937, 443)
+2024-12-04 21:06:22,514 - INFO - Item action completed.
+2024-12-04 21:06:26,562 - INFO - Searching for the item_1
+2024-12-04 21:06:26,636 - INFO - Clicking in item at position (np.int64(1589), np.int64(350))
+2024-12-04 21:06:26,637 - INFO - Window in the foreground or mouse over window. Blocking user mouse input.
+2024-12-04 21:06:26,637 - INFO - Mouse unblocking.
+2024-12-04 21:06:26,694 - INFO - Using item at (937, 443)
+2024-12-04 21:06:26,750 - INFO - Item action completed.
+2024-12-04 21:07:21,150 - INFO - Searching for the item_1
+2024-12-04 21:07:21,222 - INFO - Clicking in item at position (np.int64(1589), np.int64(350))
+2024-12-04 21:07:21,222 - INFO - Window not in the foreground.
+2024-12-04 21:07:21,278 - INFO - Using item at (937, 443)
+2024-12-04 21:07:21,334 - INFO - Item action completed.
+2024-12-04 21:08:05,635 - INFO - Searching for the item_1
+2024-12-04 21:08:05,703 - INFO - Clicking in item at position (np.int64(1589), np.int64(350))
+2024-12-04 21:08:05,703 - INFO - Window not in the foreground.
+2024-12-04 21:08:05,750 - INFO - Using item at (937, 443)
+2024-12-04 21:08:05,807 - INFO - Item action completed.
+2024-12-04 21:08:40,268 - INFO - Searching for the item_1
+2024-12-04 21:08:40,339 - INFO - Clicking in item at position (np.int64(1589), np.int64(350))
+2024-12-04 21:08:40,339 - INFO - Window in the foreground or mouse over window. Blocking user mouse input.
+2024-12-04 21:08:40,339 - INFO - Mouse unblocking.
+2024-12-04 21:08:40,382 - INFO - Using item at (937, 443)
+2024-12-04 21:08:40,439 - INFO - Item action completed.
+2024-12-04 21:08:43,591 - INFO - Searching for the item_1
+2024-12-04 21:08:43,662 - INFO - Clicking in item at position (np.int64(1589), np.int64(350))
+2024-12-04 21:08:43,662 - INFO - Window in the foreground or mouse over window. Blocking user mouse input.
+2024-12-04 21:08:43,662 - INFO - Mouse unblocking.
+2024-12-04 21:08:43,709 - INFO - Using item at (937, 443)
+2024-12-04 21:08:43,766 - INFO - Item action completed.
+2024-12-04 21:09:03,436 - INFO - Searching for the item_1
+2024-12-04 21:09:03,518 - INFO - Clicking in item at position (np.int64(1589), np.int64(350))
+2024-12-04 21:09:03,518 - INFO - Window in the foreground or mouse over window. Blocking user mouse input.
+2024-12-04 21:09:03,519 - INFO - Mouse unblocking.
+2024-12-04 21:09:03,564 - INFO - Using item at (937, 443)
+2024-12-04 21:09:03,619 - INFO - Item action completed.
+2024-12-04 21:09:19,935 - INFO - Searching for the item_1
+2024-12-04 21:09:20,004 - INFO - Clicking in item at position (np.int64(1589), np.int64(350))
+2024-12-04 21:09:20,005 - INFO - Window in the foreground or mouse over window. Blocking user mouse input.
+2024-12-04 21:09:20,005 - INFO - Mouse unblocking.
+2024-12-04 21:09:20,057 - INFO - Using item at (937, 443)
+2024-12-04 21:09:20,113 - INFO - Item action completed.
+2024-12-04 21:09:23,155 - INFO - Searching for the item_1
+2024-12-04 21:09:23,230 - INFO - Clicking in item at position (np.int64(1589), np.int64(350))
+2024-12-04 21:09:23,230 - INFO - Window in the foreground or mouse over window. Blocking user mouse input.
+2024-12-04 21:09:23,231 - INFO - Mouse unblocking.
+2024-12-04 21:09:23,279 - INFO - Using item at (937, 443)
+2024-12-04 21:09:23,336 - INFO - Item action completed.
+2024-12-04 21:09:25,220 - INFO - Searching for the item_1
+2024-12-04 21:09:25,292 - INFO - Clicking in item at position (np.int64(1589), np.int64(350))
+2024-12-04 21:09:25,292 - INFO - Window in the foreground or mouse over window. Blocking user mouse input.
+2024-12-04 21:09:25,292 - INFO - Mouse unblocking.
+2024-12-04 21:09:25,342 - INFO - Using item at (937, 443)
+2024-12-04 21:09:25,398 - INFO - Item action completed.
+2024-12-04 21:09:26,513 - INFO - Searching for the item_1
+2024-12-04 21:09:26,580 - INFO - Clicking in item at position (np.int64(1589), np.int64(350))
+2024-12-04 21:09:26,580 - INFO - Window in the foreground or mouse over window. Blocking user mouse input.
+2024-12-04 21:09:26,580 - INFO - Mouse unblocking.
+2024-12-04 21:09:26,626 - INFO - Using item at (937, 443)
+2024-12-04 21:09:26,683 - INFO - Item action completed.
+2024-12-04 21:09:27,812 - INFO - Searching for the item_1
+2024-12-04 21:09:27,902 - INFO - Clicking in item at position (np.int64(1589), np.int64(350))
+2024-12-04 21:09:27,903 - INFO - Window in the foreground or mouse over window. Blocking user mouse input.
+2024-12-04 21:09:27,903 - INFO - Mouse unblocking.
+2024-12-04 21:09:27,953 - INFO - Using item at (937, 443)
+2024-12-04 21:09:28,009 - INFO - Item action completed.
+2024-12-04 21:09:52,163 - INFO - Searching for the item_1
+2024-12-04 21:09:52,234 - INFO - Clicking in item at position (np.int64(1589), np.int64(350))
+2024-12-04 21:09:52,234 - INFO - Window in the foreground or mouse over window. Blocking user mouse input.
+2024-12-04 21:09:52,235 - INFO - Mouse unblocking.
+2024-12-04 21:09:52,280 - INFO - Using item at (937, 443)
+2024-12-04 21:09:52,335 - INFO - Item action completed.
+2024-12-04 21:09:54,535 - INFO - Searching for the item_1
+2024-12-04 21:09:54,610 - INFO - Clicking in item at position (np.int64(1589), np.int64(350))
+2024-12-04 21:09:54,610 - INFO - Window in the foreground or mouse over window. Blocking user mouse input.
+2024-12-04 21:09:54,610 - INFO - Mouse unblocking.
+2024-12-04 21:09:54,656 - INFO - Using item at (937, 443)
+2024-12-04 21:09:54,712 - INFO - Item action completed.
+2024-12-04 21:09:56,816 - INFO - Searching for the item_1
+2024-12-04 21:09:56,894 - INFO - Clicking in item at position (np.int64(1589), np.int64(350))
+2024-12-04 21:09:56,894 - INFO - Window in the foreground or mouse over window. Blocking user mouse input.
+2024-12-04 21:09:56,895 - INFO - Mouse unblocking.
+2024-12-04 21:09:56,940 - INFO - Using item at (937, 443)
+2024-12-04 21:09:56,997 - INFO - Item action completed.
+2024-12-04 21:11:22,209 - INFO - Searching for the fishing rod...
+2024-12-04 21:11:22,311 - INFO - Searching for water regions...
+2024-12-04 21:11:22,492 - INFO - Right-clicking on fishing rod at (np.int64(1766), np.int64(138))
+2024-12-04 21:11:22,492 - INFO - Window in the foreground or mouse over window. Blocking user mouse input.
+2024-12-04 21:11:22,493 - INFO - Mouse blocked.
+2024-12-04 21:11:22,573 - INFO - Left-clicking on water region at (np.int64(623), np.int64(594)).
+2024-12-04 21:11:22,656 - INFO - Mouse unblocking.
+2024-12-04 21:11:22,656 - INFO - Fishing action completed.
+2024-12-04 21:11:23,306 - INFO - Searching for the fishing rod...
+2024-12-04 21:11:23,393 - INFO - Searching for water regions...
+2024-12-04 21:11:23,592 - INFO - Right-clicking on fishing rod at (np.int64(1766), np.int64(138))
+2024-12-04 21:11:23,593 - INFO - Window in the foreground or mouse over window. Blocking user mouse input.
+2024-12-04 21:11:23,593 - INFO - Mouse blocked.
+2024-12-04 21:11:23,671 - INFO - Left-clicking on water region at (np.int64(583), np.int64(593)).
+2024-12-04 21:11:23,754 - INFO - Mouse unblocking.
+2024-12-04 21:11:23,754 - INFO - Fishing action completed.
+2024-12-04 21:11:24,404 - INFO - Searching for the fishing rod...
+2024-12-04 21:11:24,487 - INFO - Searching for water regions...
+2024-12-04 21:11:24,650 - INFO - Right-clicking on fishing rod at (np.int64(1766), np.int64(138))
+2024-12-04 21:11:24,650 - INFO - Window in the foreground or mouse over window. Blocking user mouse input.
+2024-12-04 21:11:24,651 - INFO - Mouse blocked.
+2024-12-04 21:11:24,726 - INFO - Left-clicking on water region at (np.int64(522), np.int64(592)).
+2024-12-04 21:11:24,810 - INFO - Mouse unblocking.
+2024-12-04 21:11:24,810 - INFO - Fishing action completed.
+2024-12-04 21:11:43,348 - INFO - Searching for the item_1
+2024-12-04 21:11:43,452 - INFO - Clicking in item at position (np.int64(1589), np.int64(350))
+2024-12-04 21:11:43,453 - INFO - Window in the foreground or mouse over window. Blocking user mouse input.
+2024-12-04 21:11:43,453 - INFO - Mouse unblocking.
+2024-12-04 21:11:43,497 - INFO - Using item at (937, 443)
+2024-12-04 21:11:43,552 - INFO - Item action completed.
+2024-12-04 21:11:45,643 - INFO - Searching for the item_1
+2024-12-04 21:11:45,711 - INFO - Clicking in item at position (np.int64(1589), np.int64(350))
+2024-12-04 21:11:45,711 - INFO - Window in the foreground or mouse over window. Blocking user mouse input.
+2024-12-04 21:11:45,711 - INFO - Mouse unblocking.
+2024-12-04 21:11:45,767 - INFO - Using item at (937, 443)
+2024-12-04 21:11:45,824 - INFO - Item action completed.
+2024-12-04 21:11:51,230 - INFO - Searching for the item_1
+2024-12-04 21:11:51,299 - INFO - Clicking in item at position (np.int64(1589), np.int64(350))
+2024-12-04 21:11:51,299 - INFO - Window in the foreground or mouse over window. Blocking user mouse input.
+2024-12-04 21:11:51,299 - INFO - Mouse unblocking.
+2024-12-04 21:11:51,345 - INFO - Using item at (937, 443)
+2024-12-04 21:11:51,401 - INFO - Item action completed.
+2024-12-04 21:12:05,256 - INFO - Searching for the item_1
+2024-12-04 21:12:05,326 - INFO - Clicking in item at position (np.int64(1589), np.int64(350))
+2024-12-04 21:12:05,327 - INFO - Window in the foreground or mouse over window. Blocking user mouse input.
+2024-12-04 21:12:05,327 - INFO - Mouse unblocking.
+2024-12-04 21:12:05,381 - INFO - Using item at (937, 443)
+2024-12-04 21:12:05,436 - INFO - Item action completed.
+2024-12-04 21:12:06,804 - INFO - Searching for the item_1
+2024-12-04 21:12:06,882 - INFO - Clicking in item at position (np.int64(1589), np.int64(350))
+2024-12-04 21:12:06,882 - INFO - Window in the foreground or mouse over window. Blocking user mouse input.
+2024-12-04 21:12:06,882 - INFO - Mouse unblocking.
+2024-12-04 21:12:06,928 - INFO - Using item at (937, 443)
+2024-12-04 21:12:06,987 - INFO - Item action completed.
+2024-12-04 21:12:08,571 - INFO - Searching for the item_1
+2024-12-04 21:12:08,646 - INFO - Clicking in item at position (np.int64(1589), np.int64(350))
+2024-12-04 21:12:08,646 - INFO - Window in the foreground or mouse over window. Blocking user mouse input.
+2024-12-04 21:12:08,646 - INFO - Mouse unblocking.
+2024-12-04 21:12:08,693 - INFO - Using item at (937, 443)
+2024-12-04 21:12:08,749 - INFO - Item action completed.
+2024-12-04 21:13:34,405 - INFO - Searching for the item_1
+2024-12-04 21:13:34,474 - INFO - Clicking in item at position (np.int64(1589), np.int64(350))
+2024-12-04 21:13:34,474 - INFO - Window in the foreground or mouse over window. Blocking user mouse input.
+2024-12-04 21:13:34,474 - INFO - Mouse unblocking.
+2024-12-04 21:13:34,520 - INFO - Using item at (937, 443)
+2024-12-04 21:13:34,576 - INFO - Item action completed.
+2024-12-04 21:13:37,608 - INFO - Searching for the item_1
+2024-12-04 21:13:37,687 - INFO - Clicking in item at position (np.int64(1589), np.int64(350))
+2024-12-04 21:13:37,687 - INFO - Window in the foreground or mouse over window. Blocking user mouse input.
+2024-12-04 21:13:37,687 - INFO - Mouse unblocking.
+2024-12-04 21:13:37,735 - INFO - Using item at (937, 443)
+2024-12-04 21:13:37,791 - INFO - Item action completed.
+2024-12-04 21:13:41,911 - INFO - Searching for the item_1
+2024-12-04 21:13:41,984 - INFO - Clicking in item at position (np.int64(1589), np.int64(350))
+2024-12-04 21:13:41,984 - INFO - Window in the foreground or mouse over window. Blocking user mouse input.
+2024-12-04 21:13:41,984 - INFO - Mouse unblocking.
+2024-12-04 21:13:42,041 - INFO - Using item at (937, 443)
+2024-12-04 21:13:42,098 - INFO - Item action completed.
+2024-12-04 21:13:53,830 - INFO - Searching for the item_1
+2024-12-04 21:13:53,918 - INFO - Clicking in item at position (np.int64(1589), np.int64(350))
+2024-12-04 21:13:53,919 - INFO - Window not in the foreground.
+2024-12-04 21:13:53,971 - INFO - Using item at (937, 443)
+2024-12-04 21:13:54,028 - INFO - Item action completed.
+2024-12-04 21:15:17,177 - INFO - Searching for the item_1
+2024-12-04 21:15:17,258 - INFO - Clicking in item at position (np.int64(1589), np.int64(350))
+2024-12-04 21:15:17,258 - INFO - Window not in the foreground.
+2024-12-04 21:15:17,306 - INFO - Using item at (937, 443)
+2024-12-04 21:15:17,362 - INFO - Item action completed.
+2024-12-04 21:15:19,574 - INFO - Searching for the item_1
+2024-12-04 21:15:19,641 - INFO - Clicking in item at position (np.int64(1589), np.int64(350))
+2024-12-04 21:15:19,642 - INFO - Window not in the foreground.
+2024-12-04 21:15:19,689 - INFO - Using item at (937, 443)
+2024-12-04 21:15:19,745 - INFO - Item action completed.
+2024-12-04 21:15:22,783 - INFO - Searching for the item_1
+2024-12-04 21:15:22,859 - INFO - Clicking in item at position (np.int64(1589), np.int64(350))
+2024-12-04 21:15:22,859 - INFO - Window in the foreground or mouse over window. Blocking user mouse input.
+2024-12-04 21:15:22,859 - INFO - Mouse unblocking.
+2024-12-04 21:15:22,910 - INFO - Using item at (937, 443)
+2024-12-04 21:15:22,967 - INFO - Item action completed.
+2024-12-04 21:15:23,917 - INFO - Searching for the item_1
+2024-12-04 21:15:23,983 - INFO - Clicking in item at position (np.int64(1589), np.int64(350))
+2024-12-04 21:15:23,983 - INFO - Window in the foreground or mouse over window. Blocking user mouse input.
+2024-12-04 21:15:23,983 - INFO - Mouse unblocking.
+2024-12-04 21:15:24,028 - INFO - Using item at (937, 443)
+2024-12-04 21:15:24,085 - INFO - Item action completed.
+2024-12-04 21:15:34,442 - INFO - Searching for the item_1
+2024-12-04 21:15:34,518 - INFO - Clicking in item at position (np.int64(1589), np.int64(350))
+2024-12-04 21:15:34,518 - INFO - Window in the foreground or mouse over window. Blocking user mouse input.
+2024-12-04 21:15:34,518 - INFO - Mouse unblocking.
+2024-12-04 21:15:34,571 - INFO - Using item at (937, 443)
+2024-12-04 21:15:34,627 - INFO - Item action completed.
+2024-12-04 21:15:56,365 - INFO - Searching for the item_1
+2024-12-04 21:15:56,433 - INFO - Clicking in item at position (np.int64(1589), np.int64(350))
+2024-12-04 21:15:56,433 - INFO - Window in the foreground or mouse over window. Blocking user mouse input.
+2024-12-04 21:15:56,433 - INFO - Mouse unblocking.
+2024-12-04 21:15:56,480 - INFO - Item action completed.
+2024-12-04 21:15:58,679 - INFO - Searching for the item_1
+2024-12-04 21:15:58,751 - INFO - Clicking in item at position (np.int64(1589), np.int64(350))
+2024-12-04 21:15:58,752 - INFO - Window in the foreground or mouse over window. Blocking user mouse input.
+2024-12-04 21:15:58,752 - INFO - Mouse unblocking.
+2024-12-04 21:15:58,806 - INFO - Item action completed.
+2024-12-04 21:18:10,338 - INFO - Searching for the item_1
+2024-12-04 21:18:10,415 - INFO - Clicking in item at position (np.int64(1589), np.int64(350))
+2024-12-04 21:18:10,416 - INFO - Window in the foreground or mouse over window. Blocking user mouse input.
+2024-12-04 21:18:10,416 - INFO - Mouse unblocking.
+2024-12-04 21:18:10,469 - INFO - Using item at (937, 443)
+2024-12-04 21:18:10,524 - INFO - Item action completed.
+2024-12-04 21:19:15,314 - INFO - Searching for the item_1
+2024-12-04 21:19:15,384 - INFO - Clicking in item at position (np.int64(1592), np.int64(453))
+2024-12-04 21:19:15,384 - INFO - Window in the foreground or mouse over window. Blocking user mouse input.
+2024-12-04 21:19:15,384 - INFO - Mouse unblocking.
+2024-12-04 21:19:15,435 - INFO - Using item at (937, 443)
+2024-12-04 21:19:15,491 - INFO - Item action completed.
+2024-12-04 21:19:17,482 - INFO - Searching for the item_1
+2024-12-04 21:19:17,560 - INFO - Clicking in item at position (np.int64(1592), np.int64(453))
+2024-12-04 21:19:17,560 - INFO - Window in the foreground or mouse over window. Blocking user mouse input.
+2024-12-04 21:19:17,560 - INFO - Mouse unblocking.
+2024-12-04 21:19:17,609 - INFO - Using item at (937, 443)
+2024-12-04 21:19:17,666 - INFO - Item action completed.
+2024-12-04 21:19:18,784 - INFO - Searching for the item_1
+2024-12-04 21:19:18,873 - INFO - Clicking in item at position (np.int64(1592), np.int64(453))
+2024-12-04 21:19:18,873 - INFO - Window in the foreground or mouse over window. Blocking user mouse input.
+2024-12-04 21:19:18,873 - INFO - Mouse unblocking.
+2024-12-04 21:19:18,921 - INFO - Using item at (937, 443)
+2024-12-04 21:19:18,977 - INFO - Item action completed.
+2024-12-04 21:25:12,179 - INFO - Searching for the item_1
+2024-12-04 21:25:12,247 - INFO - Clicking in item at position (np.int64(1592), np.int64(453))
+2024-12-04 21:25:12,295 - INFO - Using item at (937, 443)
+2024-12-04 21:25:12,352 - INFO - Item action completed.
+2024-12-04 21:25:15,206 - INFO - Searching for the item_1
+2024-12-04 21:25:15,279 - INFO - Clicking in item at position (np.int64(1592), np.int64(453))
+2024-12-04 21:25:15,330 - INFO - Using item at (937, 443)
+2024-12-04 21:25:15,386 - INFO - Item action completed.
+2024-12-04 21:25:18,294 - INFO - Searching for the item_1
+2024-12-04 21:25:18,361 - INFO - Clicking in item at position (np.int64(1592), np.int64(453))
+2024-12-04 21:25:18,407 - INFO - Using item at (937, 443)
+2024-12-04 21:25:18,463 - INFO - Item action completed.
+2024-12-04 21:25:20,089 - INFO - Searching for the item_1
+2024-12-04 21:25:20,156 - INFO - Clicking in item at position (np.int64(1592), np.int64(453))
+2024-12-04 21:25:20,205 - INFO - Using item at (937, 443)
+2024-12-04 21:25:20,262 - INFO - Item action completed.
+2024-12-04 21:25:21,215 - INFO - Searching for the item_1
+2024-12-04 21:25:21,303 - INFO - Clicking in item at position (np.int64(1592), np.int64(453))
+2024-12-04 21:25:21,351 - INFO - Using item at (937, 443)
+2024-12-04 21:25:21,407 - INFO - Item action completed.
+2024-12-04 21:25:23,241 - INFO - Searching for the item_1
+2024-12-04 21:25:23,331 - INFO - Clicking in item at position (np.int64(1592), np.int64(453))
+2024-12-04 21:25:23,386 - INFO - Using item at (937, 443)
+2024-12-04 21:25:23,442 - INFO - Item action completed.
+2024-12-04 21:28:30,678 - INFO - Searching for the item_1
+2024-12-04 21:28:30,745 - INFO - Clicking in item at position (np.int64(1592), np.int64(453))
+2024-12-04 21:28:30,745 - INFO - Window in the foreground or mouse over window. Blocking user mouse input.
+2024-12-04 21:28:30,746 - INFO - Mouse blocked.
+2024-12-04 21:28:30,833 - INFO - Using item at (937, 443)
+2024-12-04 21:28:30,917 - INFO - Mouse unblocking.
+2024-12-04 21:28:30,917 - INFO - Ended action. Unblocking user mouse input.
+2024-12-04 21:28:30,917 - INFO - Item action completed.
+2024-12-04 21:28:36,075 - INFO - Searching for the item_1
+2024-12-04 21:28:36,148 - INFO - Clicking in item at position (np.int64(1592), np.int64(453))
+2024-12-04 21:28:36,148 - INFO - Window in the foreground or mouse over window. Blocking user mouse input.
+2024-12-04 21:28:36,149 - INFO - Mouse blocked.
+2024-12-04 21:28:36,230 - INFO - Using item at (937, 443)
+2024-12-04 21:28:36,313 - INFO - Mouse unblocking.
+2024-12-04 21:28:36,313 - INFO - Ended action. Unblocking user mouse input.
+2024-12-04 21:28:36,313 - INFO - Item action completed.
+2024-12-04 21:28:55,357 - INFO - Searching for the item_1
+2024-12-04 21:28:55,425 - INFO - Clicking in item at position (np.int64(1592), np.int64(453))
+2024-12-04 21:28:55,425 - INFO - Window in the foreground or mouse over window. Blocking user mouse input.
+2024-12-04 21:28:55,426 - INFO - Mouse blocked.
+2024-12-04 21:28:56,473 - INFO - Using item at (937, 443)
+2024-12-04 21:28:56,556 - INFO - Mouse unblocking.
+2024-12-04 21:28:56,556 - INFO - Ended action. Unblocking user mouse input.
+2024-12-04 21:28:56,557 - INFO - Item action completed.
+2024-12-04 21:29:16,336 - INFO - Searching for the item_1
+2024-12-04 21:29:16,404 - INFO - Clicking in item at position (np.int64(1592), np.int64(453))
+2024-12-04 21:29:16,404 - INFO - Window in the foreground or mouse over window. Blocking user mouse input.
+2024-12-04 21:29:16,405 - INFO - Mouse blocked.
+2024-12-04 21:29:18,453 - INFO - Using item at (937, 443)
+2024-12-04 21:29:19,508 - INFO - Mouse unblocking.
+2024-12-04 21:29:19,509 - INFO - Ended action. Unblocking user mouse input.
+2024-12-04 21:29:19,509 - INFO - Item action completed.
+2024-12-04 21:32:01,694 - INFO - Searching for the item_1
+2024-12-04 21:32:01,762 - INFO - Clicking in item at position (np.int64(1589), np.int64(350))
+2024-12-04 21:32:01,762 - INFO - Window in the foreground or mouse over window. Blocking user mouse input.
+2024-12-04 21:32:01,763 - INFO - Mouse blocked.
+2024-12-04 21:32:01,974 - INFO - Using item at (937, 443)
+2024-12-04 21:32:02,101 - INFO - Mouse unblocking.
+2024-12-04 21:32:02,101 - INFO - Ended action. Unblocking user mouse input.
+2024-12-04 21:32:02,101 - INFO - Item action completed.
+2024-12-04 21:32:23,017 - INFO - Searching for the item_1
+2024-12-04 21:32:23,092 - INFO - Clicking in item at position (np.int64(1589), np.int64(350))
+2024-12-04 21:32:23,092 - INFO - Window in the foreground or mouse over window. Blocking user mouse input.
+2024-12-04 21:32:23,093 - INFO - Mouse blocked.
+2024-12-04 21:32:23,308 - INFO - Using item at (937, 443)
+2024-12-04 21:32:23,435 - INFO - Mouse unblocking.
+2024-12-04 21:32:23,435 - INFO - Ended action. Unblocking user mouse input.
+2024-12-04 21:32:23,435 - INFO - Item action completed.
+2024-12-04 21:32:51,000 - INFO - Searching for the item_1
+2024-12-04 21:32:51,087 - INFO - Clicking in item at position (np.int64(1589), np.int64(350))
+2024-12-04 21:32:51,087 - INFO - Window in the foreground or mouse over window. Blocking user mouse input.
+2024-12-04 21:32:51,088 - INFO - Mouse blocked.
+2024-12-04 21:32:51,301 - INFO - Using item at (937, 443)
+2024-12-04 21:32:51,429 - INFO - Mouse unblocking.
+2024-12-04 21:32:51,430 - INFO - Ended action. Unblocking user mouse input.
+2024-12-04 21:32:51,430 - INFO - Item action completed.
+2024-12-04 21:46:02,572 - INFO - Searching for the item_1
+2024-12-04 21:46:02,661 - INFO - Clicking in item at position (np.int64(1626), np.int64(350))
+2024-12-04 21:46:02,661 - INFO - Window in the foreground or mouse over window. Blocking user mouse input.
+2024-12-04 21:46:02,662 - INFO - Mouse blocked.
+2024-12-04 21:46:02,878 - INFO - Using item at (937, 443)
+2024-12-04 21:46:03,005 - INFO - Mouse unblocking.
+2024-12-04 21:46:03,005 - INFO - Ended action. Unblocking user mouse input.
+2024-12-04 21:46:03,005 - INFO - Item action completed.
+2024-12-04 21:46:06,984 - INFO - Searching for the item_1
+2024-12-04 21:46:07,052 - ERROR - item_1 not found
+2024-12-04 21:46:10,547 - INFO - Searching for the item_1
+2024-12-04 21:46:10,615 - ERROR - item_1 not found
+2024-12-04 21:46:14,317 - INFO - Searching for the item_1
+2024-12-04 21:46:14,396 - ERROR - item_1 not found
