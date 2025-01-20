@@ -8,6 +8,8 @@ from utils import LogManager
 from datetime import datetime
 import random
 import cv2
+import os
+from settings import BASE_DIR
 
 
 class Action(ABC):
@@ -19,10 +21,6 @@ class Action(ABC):
         self.process_manager = ProcessManager()
         self.mouse_blocker = MouseBlocker()
 
-        self.hwnd = "Miracle 7.4 - Dropper"
-        self.super_hwnd = self.process_manager.find_hWnd_by_name(self.hwnd)
-        self.process_manager.set_hwnd(self.super_hwnd)
-
     @abstractmethod
     def execute(self):
         pass
@@ -33,9 +31,6 @@ class ImageAction(Action):
         super().__init__(priority)
 
         self.screen_manager = ScreenManager()
-        self.screen_manager.set_window_handle(self.super_hwnd)
-
-        pass
 
     def validate_template(self, template_path, template_name="template"):
         """Validate if templates exists and log if not found."""
@@ -55,91 +50,206 @@ class ImageAction(Action):
         pass
 
 
-class MoveBlankRuneAction(ImageAction):
-    def __init__(self, priority=2, config_path="../configs.mana"):
+class MoveItemAction(ImageAction):
+    def __init__(self, priority=2, instance_n: int=1):
         """
 
         :type priority: Set priority of action
         """
         super().__init__(priority)
-        self.blank_rune_path = "../assets/templates/blank_rune.png"
-        self.destination_coords = None
+
+        self.instance_n = instance_n
+
+        self.move_item_path = None
+        self.move_item_threshold = None
+        self.panels_region = None
+        self.map_region = None
         self.destination_region = None
+        self.delay = None
+        self.steps = None
+        self._initialize()
 
-        # example test
-        self.hwnd = "Miracle 7.4 - Dropper"
-        hwnd = self.process_manager.find_hWnd_by_name(self.hwnd)
-        self.process_manager.set_hwnd(hwnd)
-        self.screen_manager.set_window_handle(hwnd)
+        self.config_manager.add_observer(f"move_item_path_{self.instance_n}", self)
+        self.config_manager.add_observer(f"move_item_threshold_{self.instance_n}", self)
+        self.config_manager.add_observer(f"panels_region", self)
+        self.config_manager.add_observer(f"map_region", self)
+        self.config_manager.add_observer(f"destination_region_m_{self.instance_n}", self)
+        self.config_manager.add_observer(f"delay_m_{self.instance_n}", self)
+        self.config_manager.add_observer(f"steps_m_{self.instance_n}", self)
 
-    def get_destination_region(self):
-        return self.destination_region
+        self.destination_coords = None
 
-    def set_destination_region(self, region):
-        self.destination_region = region
+    def _initialize(self):
+        """Initialize all configs need to execute action."""
 
-    def get_destination_coords(self):
-        return self.destination_coords
+        required_keys = [
+            f"move_item_path_{self.instance_n}",
+            f"move_item_threshold_{self.instance_n}",
+            "panels_region",
+            "map_region",
+            f"destination_region_m_{self.instance_n}",
+            f"delay_m_{self.instance_n}",
+            f"steps_m_{self.instance_n}"
+        ]
 
-    def set_destination_coords(self, destination_x, destination_y):
-        self.destination_coords = (destination_x, destination_y)
+        try:
+            self.config_manager.validate_config(required_keys=required_keys)
+        except ValueError as e:
+            self.logger.log("error", f"Configuration validation failed: {e}")
+            raise
+
+        self.move_item_path = self.config_manager.get(key=f"move_item_path_{self.instance_n}", default=None)
+        self.move_item_threshold = self.config_manager.get(key=f"move_item_threshold_{self.instance_n}", default=0.8)
+        self.panels_region = self.config_manager.get(key="panels_region", default=None)
+        self.map_region = self.config_manager.get(key="map_region", default=None)
+        self.destination_region = self.config_manager.get(key=f"destination_region_m_{self.instance_n}", default=None)
+        self.delay = self.config_manager.get(key=f"delay_m_{self.instance_n}", default=0.08)
+        self.steps = self.config_manager.get(key=f"steps_m_{self.instance_n}", default=30)
+
+    def on_config_update(self, key, value):
+        """React in config update"""
+        if key == f"move_item_path_{self.instance_n}":
+            self.move_item_path = value
+            self.logger.log("info", f"Updated move_item_path_{self.instance_n} to value {value}")
+        elif key == f"move_item_threshold_{self.instance_n}":
+            self.move_item_threshold = value
+            self.logger.log("info", f"Updated move_item_threshold_{self.instance_n} to value {value}")
+        elif key == f"panels_region":
+            self.panels_region = value
+            self.logger.log("info", f"Updated panels_region to value {value}")
+        elif key == f"map_region":
+            self.map_region = value
+            self.logger.log("info", f"Updated map_region to value {value}")
+        elif key == f"destination_region_{self.instance_n}":
+            self.destination_region = value
+            self.logger.log("info", f"Updated destination_region_m_{self.instance_n} to value {value}")
+        elif key == f"delay_m_{self.instance_n}":
+            self.delay = value
+            self.logger.log("info", f"Updated delay_m_{self.instance_n} to value {value}")
+        elif key == f"steps_m_{self.instance_n}":
+            self.steps = value
+            self.logger.log("info", f"Updated steps_m_{self.instance_n} to value {value}")
+
+    def validate_resources(self):
+        if not self.validate_template(template_path=self.move_item_path, template_name=f"Move item path {self.instance_n}"):
+            return False
+        if not self.destination_region:
+            return False
+        return True
+
+    def find_item(self, screen):
+        self.logger.log("info", f"Searching for the move_item_{self.instance_n}")
+
+        dest_x, dest_y, dest_width, dest_height = self.destination_region
+        destination_rect = (dest_x, dest_y, dest_x + dest_width, dest_y + dest_height)
+
+        for region in self.panels_region:
+            x, y, width, height = region
+            cropped_screen = screen[y:y+height, x:x+width]
+            items_positions_in_region = self.screen_manager.find_image(
+                main_image=cropped_screen,
+                template=self.move_item_path,
+                threshold=self.move_item_threshold,
+                all_matches=True,
+                variation=5
+            )
+            if items_positions_in_region:
+                for item_position in items_positions_in_region:
+                    item_x, item_y = item_position[0] + x, item_position[1] + y
+
+                    if dest_x <= item_x <= dest_x + dest_width and dest_y <= item_y <= dest_y + dest_height:
+                        continue
+
+                    return item_x, item_y
+        self.logger.log("error", f"move_item_{self.instance_n} not found")
+        return None
+
+    def perform_move(self, move_item_position):
+        start_x, start_y = move_item_position
+        dest_x, dest_y, dest_width, dest_height = self.destination_region
+
+        self.logger.log("info", f"Clicking in item to move at position {move_item_position}")
+
+        if self.process_manager.is_foreground() or self.process_manager.is_mouse_over_window():
+            self.logger.log("info", f"Window in the foreground or mouse over window. Blocking user mouse input")
+            self.mouse_blocker.start_blocking()
+
+        if self.mouse_blocker.blocking:
+            time.sleep(self.delay)
+        self.logger.log("info", f"Moving item to {dest_x, dest_y}")
+        self.process_manager.moveTo(start_x, start_y)
+        if self.mouse_blocker.blocking:
+            time.sleep(self.delay)
+        self.process_manager.perform_drag_and_drop(start_x=start_x, start_y=start_y, dest_x=dest_x, dest_y=dest_y, steps=self.steps)
+
+        if self.mouse_blocker.blocking:
+            self.mouse_blocker.stop_blocking()
+            self.logger.log("info", f"Ended action. Unblocking mouse input.")
+
+        self.logger.log("info", f"Move_item_{self.instance_n} action completed.")
 
     def execute(self):
-        if not self.destination_coords:
-            print("Destination coord not defined.")
+        if not self.validate_resources():
             return
 
-        screen = self.screen_manager.capture_screenshot()
-        position = self.screen_manager.find_image(main_image=screen, template=self.blank_rune_path)
-        if position:
-            print(position)
-            start_x, start_y = position
-            dest_x, dest_y = self.destination_coords
-            self.process_manager.moveTo(start_x, start_y)
-            time.sleep(0.2)
-            self.process_manager.perform_drag_and_drop(start_x, start_y, dest_x, dest_y)
-            print("Blank rune moved with success")
-        else:
-            print("Blank rune not found.")
+        screen = self.capture_screen()
+        if screen is None:
+            return
 
+        move_item_position = self.find_item(screen=screen)
+        if not move_item_position:
+            return
 
-# action = MoveBlankRuneAction(priority=2)
-# action.set_destination_coords(destination_x=1832, destination_y=155)
-#
-# action.execute()
+        self.perform_move(move_item_position)
 
 
 class CastSpellAction(Action):
-    def __init__(self, priority=3):
+    def __init__(self, priority=3, instance_n: int=1):
         """
-
         :param priority: Set priority of action
         """
         super().__init__(priority)
-        self.process_manager = ProcessManager()
-        self.hotkey_scan_code = None
 
-        # example_test
-        self.hwnd = "Miracle 7.4 - Dropper"
-        hwnd = self.process_manager.find_hWnd_by_name(self.hwnd)
-        self.process_manager.set_hwnd(hwnd)
+        self.instance_n = instance_n
 
-    def set_hotkey_to_cast(self, hotkey):
-        self.hotkey_scan_code = hotkey
+        self.hotkey_to_cast = None
+        self.scan_code = None
+        self._initialize()
+
+    def _initialize(self):
+        """Initialize all configs need to execute action"""
+
+        required_keys = [
+            f"hotkey_to_cast_{self.instance_n}",
+        ]
+
+        try:
+            self.config_manager.validate_config(required_keys=required_keys)
+        except ValueError as e:
+            self.logger.log("error", f"Configuration validation failed: {e}")
+            raise
+
+        self.hotkey_to_cast = self.config_manager.get(key=f"hotkey_to_cast_{self.instance_n}", default=None)
+        self.get_scan_code(self.hotkey_to_cast)
+
+    def get_scan_code(self, key: str):
+        if key in keys:
+            self.scan_code = keys[key]
+
+    def on_config_update(self, key, value):
+        """React in config update"""
+        if key == f"hotkey_to_cast_{self.instance_n}":
+            self.hotkey_to_cast = value
+            self.get_scan_code(self.hotkey_to_cast)
+            self.logger.log("info", f"updated hotkey_to_cast_{self.instance_n} to {value}")
 
     def execute(self):
-        if not self.hotkey_scan_code:
-            print("Need hotkey defined to cast spell.")
+        if not self.hotkey_to_cast:
+            self.logger.log("error", "Need hotkey defined to cast spell.")
             return
 
-        self.process_manager.send_key_to_window(scan_code=self.hotkey_scan_code)
-        print("Attempt to cast spell made.")
-
-
-# action_spell = CastSpellAction(priority=3)
-# action_spell.set_hotkey_to_cast(hotkey=keys.get("H"))
-#
-# action_spell.execute()
+        self.process_manager.send_key_to_window(scan_code=self.scan_code)
+        self.logger.log("info", "Attempt to cast spell made.")
 
 
 class FishAction(ImageAction):
@@ -182,8 +292,8 @@ class FishAction(ImageAction):
             self.logger.log("error", f"Configuration validation failed: {e}")
             raise
 
-        self.fishing_rod_path = self.config_manager.get(key="fishing_rod_path", default="../assets/templates/fishing_rod.png")
-        self.water_path = self.config_manager.get(key="water_path", default="../assets/templates/water.png")
+        self.fishing_rod_path = self.config_manager.get(key="fishing_rod_path", default=os.path.join(BASE_DIR, "assets", "templates", "fishing_rod.png"))
+        self.water_path = self.config_manager.get(key="water_path", default=os.path.join(BASE_DIR, "assets", "templates", "water.png"))
         self.panels_region = self.config_manager.get(key="panels_region", default=None)
         self.map_region = self.config_manager.get(key="map_region", default=None)
         self.fishing_rod_threshold = self.config_manager.get(key="fishing_rod_threshold", default=0.5)
@@ -255,25 +365,37 @@ class FishAction(ImageAction):
         self.logger.log("info", f"Right-clicking on fishing rod at {rod_position}")
 
         if self.process_manager.is_foreground() or self.process_manager.is_mouse_over_window():
-            self.logger.log("info", f"Window in the foreground or mouse over window. Blocking user mouse input.")
-            self.mouse_blocker.start_blocking()
-        else:
-            self.logger.log("info", f"Window not in the foreground.")
+            if not self.process_manager.medivia:
+                self.logger.log("info", f"Window in the foreground or mouse over window. Blocking user mouse input.")
+                self.mouse_blocker.start_blocking()
+            else:
+                try:
+                    self.mouse_blocker.blocking_medivia()
+                except Exception as e:
+                    pass
 
         if self.mouse_blocker.blocking:
-            time.sleep(0.03)
+            time.sleep(0.05)
         self.process_manager.moveTo(*rod_position)
+        if self.mouse_blocker.blocking:
+            time.sleep(0.05)
         self.process_manager.click(*rod_position, button="right")
 
         selected_water = random.choice(water_positions)
         self.logger.log("info", f"Left-clicking on water region at {selected_water}.")
         if self.mouse_blocker.blocking:
-            time.sleep(0.03)
+            time.sleep(0.05)
         self.process_manager.moveTo(*selected_water)
+        if self.mouse_blocker.blocking:
+            time.sleep(0.05)
         self.process_manager.click(*selected_water, button="left")
 
         if self.mouse_blocker.blocking:
-            self.mouse_blocker.stop_blocking()
+            if self.process_manager.medivia:
+                self.mouse_blocker.unblocking_medivia()
+            else:
+                self.mouse_blocker.stop_blocking()
+                self.logger.log("info", f"Ended action. Unblocking user mouse input.")
 
         self.logger.log("info", "Fishing action completed.")
 
@@ -296,33 +418,39 @@ class FishAction(ImageAction):
         self.perform_fishing(fishing_rod_position, water_positions)
 
 
-class MoveItemAction(ImageAction):
-    def __init__(self, priority=5, instance_n: int=1):
+class UseItemAction(ImageAction):
+    def __init__(self, priority=5, instance_n: int = 1):
         super().__init__(priority)
 
-        self._instance_n = instance_n
+        self.instance_n = instance_n
 
+        self.use_item = None
         self.item_path = None
         self.item_threshold = None
         self.panels_region = None
         self.map_region = None
         self.destination_region = None
+        self.delay = None
         self._initialize()
 
-        self.config_manager.add_observer(f"item_path_{self._instance_n}", self)
-        self.config_manager.add_observer(f"item_threshold_{self._instance_n}", self)
+        self.config_manager.add_observer(f"use_item_{self.instance_n}", self)
+        self.config_manager.add_observer(f"item_path_{self.instance_n}", self)
+        self.config_manager.add_observer(f"item_threshold_{self.instance_n}", self)
         self.config_manager.add_observer("panels_region", self)
         self.config_manager.add_observer("map_region", self)
-        self.config_manager.add_observer(f"destination_region_{self._instance_n}", self)
+        self.config_manager.add_observer(f"destination_region_{self.instance_n}", self)
+        self.config_manager.add_observer(f"delay_{self.instance_n}", self)
 
     def _initialize(self):
         """Initialize all configs need to execute action."""
 
         required_keys = [
-            f"item_path_{self._instance_n}",
+            f"use_item_{self.instance_n}",
+            f"item_path_{self.instance_n}",
             "panels_region",
             "map_region",
-            f"destination_region_{self._instance_n}"
+            f"destination_region_{self.instance_n}",
+            f"delay_{self.instance_n}"
         ]
 
         try:
@@ -331,39 +459,45 @@ class MoveItemAction(ImageAction):
             self.logger.log("error", f"Configuration validation failed: {e}")
             raise
 
-        self.item_path = self.config_manager.get(key=f"item_path_{self._instance_n}", default=None)
-        self.item_threshold = self.config_manager.get(key=f"item_threshold_{self._instance_n}", default=0.8)
+        self.use_item = self.config_manager.get(key=f"use_item_{self.instance_n}", default=0)
+        self.item_path = self.config_manager.get(key=f"item_path_{self.instance_n}", default=None)
+        self.item_threshold = self.config_manager.get(key=f"item_threshold_{self.instance_n}", default=0.8)
         self.panels_region = self.config_manager.get(key="panels_region", default=None)
         self.map_region = self.config_manager.get(key="map_region", default=None)
-        self.destination_region = self.config_manager.get(key=f"destination_region_{self._instance_n}", default=None)
+        self.destination_region = self.config_manager.get(key=f"destination_region_{self.instance_n}", default=None)
+        self.delay = self.config_manager.get(key=f"delay_{self.instance_n}", default=0.08)
 
     def on_config_update(self, key, value):
         """React in config update"""
-        if key == f"item_path_{self._instance_n}":
+        if key == f"item_path_{self.instance_n}":
             self.item_path = value
-            self.logger.log("info", f"Updated item_path_{self._instance_n} to {value}")
-        elif key == f"item_threshold_{self._instance_n}":
+            self.logger.log("info", f"Updated item_path_{self.instance_n} to {value}")
+        elif key == f"item_threshold_{self.instance_n}":
             self.item_threshold = value
-            self.logger.log("info", f"Updated item_threshold_{self._instance_n} to {value}")
+            self.logger.log("info", f"Updated item_threshold_{self.instance_n} to {value}")
         elif key == "panels_region":
             self.panels_region = value
             self.logger.log("info", f"Updated panels_region to {value}")
         elif key == "map_region":
             self.map_region = value
             self.logger.log("info", f"Updated map_region to {value}")
-        elif key == f"destination_region_{self._instance_n}":
+        elif key == f"destination_region_{self.instance_n}":
             self.destination_region = value
-            self.logger.log("info", f"Updated destination_region_{self._instance_n} to {value}")
+            self.logger.log("info", f"Updated destination_region_{self.instance_n} to {value}")
+        elif key == f"use_item_{self.instance_n}":
+            self.use_item = value
+            self.logger.log("info", f"Updated use_item_{self.instance_n} to {value}")
+        elif key == f"delay_{self.instance_n}":
+            self.delay = value
+            self.logger.log("info", f"Updated delay_{self.instance_n} to {value}")
 
     def validate_resources(self):
-        if not self.validate_template(template_path=self.item_path, template_name=f"Item path {self._instance_n}"):
-            return False
-        if not self.destination_region:
+        if not self.validate_template(template_path=self.item_path, template_name=f"Item path {self.instance_n}"):
             return False
         return True
 
     def find_item(self, screen):
-        self.logger.log("info", f"Searching for the item_{self._instance_n}")
+        self.logger.log("info", f"Searching for the item_{self.instance_n}")
         for region in self.panels_region:
             x, y, width, height = region
             cropped_screen = screen[y:y+height, x:x+width]
@@ -374,36 +508,48 @@ class MoveItemAction(ImageAction):
             )
             if item_position_in_region:
                 return item_position_in_region[0] + x, item_position_in_region[1] + y
-        self.logger.log("error", f"item_{self._instance_n} not found")
+        self.logger.log("error", f"item_{self.instance_n} not found")
         return None
 
     def perform_movement(self, item_position):
-        dest_x, dest_y, dest_width, dest_height = self.destination_region
+        dest_x, dest_y = 0, 0
+        if self.destination_region:
+            dest_x, dest_y, dest_width, dest_height = self.destination_region
 
         self.logger.log("info", f"Clicking in item at position {item_position}")
 
         if self.process_manager.is_foreground() or self.process_manager.is_mouse_over_window():
-            self.logger.log("info", f"Window in the foreground or mouse over window. Blocking user mouse input.")
-            self.mouse_blocker.start_blocking()
-        else:
-            self.logger.log("info", f"Window not in the foreground.")
+            if not self.process_manager.medivia:
+                self.logger.log("info", f"Window in the foreground or mouse over window. Blocking user mouse input.")
+                self.mouse_blocker.start_blocking()
+            else:
+                try:
+                    self.mouse_blocker.blocking_medivia()
+                except Exception as e:
+                    pass
 
         if self.mouse_blocker.blocking:
-            time.sleep(0.08)
+            time.sleep(self.delay)
         self.process_manager.moveTo(*item_position)
+        if self.mouse_blocker.blocking:
+            time.sleep(self.delay)
         self.process_manager.click(*item_position, button="right")
 
-        if self.mouse_blocker.blocking:
-            time.sleep(0.08)
-        self.logger.log("info", f"Using item at {dest_x, dest_y}")
-        self.process_manager.moveTo(dest_x, dest_y)
-        if self.mouse_blocker.blocking:
-            time.sleep(0.08)
-        self.process_manager.click(dest_x, dest_y, button="left")
+        if self.use_item == 1 and self.destination_region:
+            if self.mouse_blocker.blocking:
+                time.sleep(self.delay)
+            self.logger.log("info", f"Using item at {dest_x, dest_y}")
+            self.process_manager.moveTo(dest_x, dest_y)
+            if self.mouse_blocker.blocking:
+                time.sleep(self.delay)
+            self.process_manager.click(dest_x, dest_y, button="left")
 
         if self.mouse_blocker.blocking:
-            self.mouse_blocker.stop_blocking()
-            self.logger.log("info", f"Ended action. Unblocking user mouse input.")
+            if self.process_manager.medivia:
+                self.mouse_blocker.unblocking_medivia()
+            else:
+                self.mouse_blocker.stop_blocking()
+                self.logger.log("info", f"Ended action. Unblocking user mouse input.")
 
         self.logger.log("info", f"Item action completed.")
 

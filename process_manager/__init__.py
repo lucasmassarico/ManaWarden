@@ -8,8 +8,19 @@ from utils import LogManager
 import numpy as np
 import win32ui
 import win32gui
-
+import random
 import ctypes.wintypes
+from utils import LogManager
+import keyboard
+from pynput.keyboard import Key, Controller
+
+SCREEN_WIDTH = ctypes.windll.user32.GetSystemMetrics(0)
+SCREEN_HEIGHT = ctypes.windll.user32.GetSystemMetrics(1)
+
+MOUSEEVENTF_MOVE = 0x0001
+MOUSEEVENTF_ABSOLUTE = 0x8000
+MOUSEEVENTF_RIGHTDOWN = 0x0008
+MOUSEEVENTF_RIGHTUP = 0x0010
 
 
 class MSG(ctypes.Structure):
@@ -40,6 +51,12 @@ class ProcessManager:
         self._initialized = True
         self.hWnd = None
         self._windll = ctypes.windll.user32
+
+        self.medivia = False
+        self.original_x = 0
+        self.original_y = 0
+
+        self.logger = LogManager()
 
     @staticmethod
     def _get_key(key_name):
@@ -98,6 +115,16 @@ class ProcessManager:
         time.sleep(0.15)
         self._windll.SendMessageW(self.hWnd, self._get_key("WM_KEYUP"), scan_code, lParam_up)
 
+    def _save_mouse_position(self):
+        """Save the current mouse position."""
+        point = ctypes.wintypes.POINT()
+        self._windll.GetCursorPos(ctypes.byref(point))
+        return point.x, point.y
+
+    def _restore_mouse_position(self, x, y):
+        """Restore the mouse to a saved position."""
+        self._windll.SetCursorPos(x, y)
+
     @staticmethod
     def _generate_lParam(x: int, y: int) -> int:
         """Generate lParam for mouse operations."""
@@ -105,18 +132,66 @@ class ProcessManager:
 
     def moveTo(self, x: int, y: int):
         """Move the mouse to the specified coordinates."""
-        lParam = self._generate_lParam(x, y)
-        self._windll.PostMessageW(self.hWnd, self._get_key("WM_MOUSEMOVE"), self._get_key("MK_LBUTTON"), lParam)
-        time.sleep(0.015)
+        if self.medivia:
+            self.original_x, self.original_y = self._save_mouse_position()
+            self._windll.SetCursorPos(int(x), int(y+20))
+            time.sleep(0.2)
+        else:
+            lParam = self._generate_lParam(x, y)
+            self._windll.PostMessageW(self.hWnd, self._get_key("WM_MOUSEMOVE"), self._get_key("MK_LBUTTON"), lParam)
+            time.sleep(0.015)
 
     def click(self, x: int, y: int, button="left"):
         """Simulate a mouse click at the given coordinates."""
-        lParam = self._generate_lParam(x, y)
-        down_key = self._get_key("WM_LBUTTONDOWN") if button == "left" else self._get_key("WM_RBUTTONDOWN")
-        up_key = self._get_key("WM_LBUTTONUP") if button == "left" else self._get_key("WM_RBUTTONUP")
-        self._windll.SendMessageW(self.hWnd, down_key, 1, lParam)
-        time.sleep(0.015)
-        self._windll.SendMessageW(self.hWnd, up_key, 0, lParam)
+        if self.medivia:
+            # Create input structure for mouse click
+            class MouseInput(ctypes.Structure):
+                _fields_ = [("dx", ctypes.c_long),
+                            ("dy", ctypes.c_long),
+                            ("mouseData", ctypes.c_ulong),
+                            ("dwFlags", ctypes.c_ulong),
+                            ("time", ctypes.c_ulong),
+                            ("dwExtraInfo", ctypes.POINTER(ctypes.c_ulong))]
+
+            class Input(ctypes.Structure):
+                class _InputUnion(ctypes.Union):
+                    _fields_ = [("mi", MouseInput)]
+
+                _anonymous_ = ("_input",)
+                _fields_ = [("type", ctypes.c_ulong), ("_input", _InputUnion)]
+
+            # Flags for mouse click
+            if button == "left":
+                down_flag = 0x0002  # MOUSEEVENTF_LEFTDOWN
+                up_flag = 0x0004  # MOUSEEVENTF_LEFTUP
+            else:
+                down_flag = 0x0008  # MOUSEEVENTF_RIGHTDOWN
+                up_flag = 0x0010  # MOUSEEVENTF_RIGHTUP
+
+            # Create input events for the click
+            inputs = (Input * 2)(
+                Input(type=0, mi=MouseInput(dx=0, dy=0, mouseData=0, dwFlags=down_flag, time=0, dwExtraInfo=None)),
+                Input(type=0, mi=MouseInput(dx=0, dy=0, mouseData=0, dwFlags=up_flag, time=0, dwExtraInfo=None))
+            )
+
+            # Send the input events
+            ctypes.windll.user32.SendInput(len(inputs), ctypes.byref(inputs), ctypes.sizeof(Input))
+
+            self._restore_mouse_position(self.original_x, self.original_y)
+        else:
+            # Use SendMessage for non-Medivia interactions
+            lParam = self._generate_lParam(x, y)
+            self.logger.log("debug", f"Attempting to click at ({x}, {y}) with lParam={lParam}")
+
+            if button == "left":
+                self._windll.SendMessageW(self.hWnd, self._get_key("WM_LBUTTONDOWN"), 1, lParam)
+                time.sleep(0.015)
+                self._windll.SendMessageW(self.hWnd, self._get_key("WM_LBUTTONUP"), 0, lParam)
+            else:
+                self._windll.SendMessageW(self.hWnd, self._get_key("WM_RBUTTONDOWN"), 0, lParam)
+                time.sleep(0.015)
+                self._windll.SendMessageW(self.hWnd, self._get_key("WM_RBUTTONUP"), 0, lParam)
+
 
     def perform_drag_and_drop(self, start_x: int, start_y: int, dest_x: int, dest_y: int, steps: int = 50, delay=0.01):
         """Simulate a drag-and-drop operation."""
@@ -155,6 +230,12 @@ class ScreenManager:
         self._initialized = True
         self.hWnd = None
         self.lock = threading.Lock()
+        self._initialize()
+
+    def _initialize(self):
+        """Define hwnd"""
+        process = ProcessManager()
+        self.hWnd = process.hWnd
 
     def set_window_handle(self, hwnd):
         """Set a handle of window"""
@@ -220,10 +301,12 @@ class ScreenManager:
                 win32gui.DeleteObject(bitmap.GetHandle())
 
     @staticmethod
-    def find_image(main_image, template, threshold=0.8, preprocess=False, binary_threshold_main=127, binary_threshold_template=127, all_matches=False):
+    def find_image(main_image, template, threshold=0.8, preprocess=False, binary_threshold_main=127, binary_threshold_template=127, all_matches=False,
+                   variation=3):
         """
         Find a template image inside another image.
 
+        :param variation:
         :param main_image: The main image where the search will be performed.
         :param template: Path to the template image to search for.
         :param threshold: Similarity threshold (default is 0.8).
@@ -262,13 +345,19 @@ class ScreenManager:
         for pt in zip(*loc[::-1]):
             center_x = pt[0] + w // 2
             center_y = pt[1] + h // 2
-            matches.append((center_x, center_y))
+
+            random_offset_x = random.randint(-variation, variation)
+            random_offset_y = random.randint(-variation, variation)
+            randomized_x = center_x + random_offset_x
+            randomized_y = center_y + random_offset_y
+
+            matches.append((randomized_x, randomized_y))
             if not all_matches:
                 break
 
         return matches if all_matches else (matches[0] if matches else None)
 
-    def select_regions(self, title="Select the region", multiple=True, save_img=None, default_path="../assets/templates", filename="img"):
+    def select_regions(self, title="Select the region", multiple=True, save_img=None, default_path="./assets/templates", filename="img"):
         """
         Allows the user to select one or multiple regions from a screenshot and optionally save them as images.
 
@@ -381,6 +470,7 @@ class MouseBlocker:
         self.thread = None
 
         self.logger = LogManager()
+        self.pressed_keys = {}  # Para rastrear teclas pressionadas
 
         self._user32 = ctypes.windll.user32
         self._kernel32 = ctypes.windll.kernel32
@@ -396,6 +486,21 @@ class MouseBlocker:
         }:
             return 1
         return self._user32.CallNextHookEx(self.hook, nCode, wParam, lParam)
+
+    def _save_pressed_keys(self):
+        """Captura o estado atual das teclas pressionadas."""
+        for key_code in range(0x01, 0xFE):  # Range para todas as teclas
+            if self._user32.GetAsyncKeyState(key_code) & 0x8000:  # Checa se a tecla está pressionada
+                self.pressed_keys[key_code] = True
+
+    def _restore_pressed_keys(self):
+        """Restaura o estado das teclas que ainda estão pressionadas."""
+        for key_code in self.pressed_keys.keys():
+            if self._user32.GetAsyncKeyState(key_code) & 0x8000:  # Se ainda está pressionada
+                self._user32.keybd_event(key_code, 0, 0, 0)  # Simula tecla pressionada novamente
+            else:
+                self._user32.keybd_event(key_code, 0, 0x0002, 0)  # Simula tecla liberada
+        self.pressed_keys.clear()  # Limpa o estado rastreado
 
     def _hook_thread(self):
         """Thread to set the mouse hook."""
@@ -414,6 +519,7 @@ class MouseBlocker:
     def start_blocking(self):
         """Start blocking mouse input."""
         if not self.blocking:
+            self._save_pressed_keys()  # Salva o estado antes de bloquear
             self.blocking = True
             self.thread = threading.Thread(target=self._hook_thread, daemon=True)
             self.thread.start()
@@ -427,11 +533,12 @@ class MouseBlocker:
                 self._user32.UnhookWindowsHookEx(self.hook)
                 self.hook = None
             self.thread = None
+            self._restore_pressed_keys()  # Restaura o estado das teclas após desbloquear
         self.logger.log("info", f"Mouse unblocking.")
 
 
 # screen_manager = ScreenManager()
-# hwnd = win32gui.FindWindow(None, "Miracle 7.4 - Dropper")
+# hwnd = win32gui.FindWindow(None, "Medivia")
 # screen_manager.set_window_handle(hwnd)
 #
 # regions_to_show = screen_manager.select_regions("Blank Rune Image",
@@ -443,11 +550,13 @@ class MouseBlocker:
 #     print("Selected regions:")
 #     for idx, (x, y, w, h) in enumerate(regions_to_show, 1):
 #         print(f"Region {idx}: x={x}, y={y}, width={w}, height={h}")
-
-
+#
+#
 # mouse_blocker = MouseBlocker()
 #
 # mouse_blocker.start_blocking()
 # time.sleep(5)
 #
 # mouse_blocker.stop_blocking()
+
+

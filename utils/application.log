@@ -1,0 +1,33 @@
+2024-12-12 20:34:21,307 - DEBUG - Attempting to click at (1815, 728) with lParam=47712023
+2024-12-12 20:36:02,990 - DEBUG - Attempting to click at (1249, 330) with lParam=21628129
+2024-12-12 20:36:09,879 - DEBUG - Attempting to click at (1249, 330) with lParam=21628129
+2024-12-12 20:48:11,326 - DEBUG - Attempting to click at (1249, 330) with lParam=21628129
+2024-12-12 20:48:25,930 - DEBUG - Attempting to click at (1249, 330) with lParam=21628129
+2024-12-12 20:49:13,590 - DEBUG - Attempting to click at (1815, 728) with lParam=47712023
+2024-12-12 20:50:12,195 - DEBUG - Attempting to click at (1537, 363) with lParam=23791105
+2024-12-12 20:50:32,696 - DEBUG - Attempting to click at (1537, 363) with lParam=23791105
+2024-12-12 20:50:56,975 - DEBUG - Attempting to click at (1815, 728) with lParam=47712023
+2024-12-12 20:51:24,129 - DEBUG - Attempting to click at (1815, 728) with lParam=47712023
+2024-12-12 20:51:28,376 - DEBUG - Attempting to click at (1815, 728) with lParam=47712023
+2024-12-12 20:51:33,373 - DEBUG - Attempting to click at (1815, 728) with lParam=47712023
+2024-12-12 20:52:06,562 - DEBUG - Attempting to click at (1815, 728) with lParam=47712023
+2024-12-12 20:52:11,532 - DEBUG - Attempting to click at (1815, 728) with lParam=47712023
+2024-12-12 20:54:53,030 - DEBUG - Attempting to click at (1815, 728) with lParam=47712023
+2024-12-12 20:54:56,811 - DEBUG - Attempting to click at (1815, 728) with lParam=47712023
+2024-12-12 20:58:22,558 - DEBUG - Attempting to click at (1815, 728) with lParam=47712023
+2024-12-12 20:58:26,684 - DEBUG - Attempting to click at (1815, 728) with lParam=47712023
+2024-12-12 21:00:59,213 - DEBUG - MoveTo result_PostMessageW: 1, result_SendMessageW: 0
+2024-12-12 21:00:59,731 - DEBUG - Attempting to click at (1815, 728) with lParam=47712023
+2024-12-12 21:01:59,090 - DEBUG - MoveTo result_PostMessageW: 1, result_SendMessageW: 0
+2024-12-12 21:01:59,607 - DEBUG - Attempting to click at (1815, 728) with lParam=47712023
+2024-12-12 21:09:06,329 - DEBUG - Attempting to click at (1834, 687) with lParam=45025066
+2024-12-12 21:09:55,586 - DEBUG - MoveTo result_PostMessageW: 1
+2024-12-12 21:09:57,603 - DEBUG - Attempting to click at (1834, 687) with lParam=45025066
+2024-12-12 21:10:16,611 - DEBUG - Attempting to click at (1834, 687) with lParam=45025066
+2024-12-12 21:10:31,250 - DEBUG - Attempting to click at (1834, 687) with lParam=45025066
+2024-12-12 21:10:36,996 - DEBUG - Attempting to click at (1834, 687) with lParam=45025066
+2024-12-12 21:40:31,928 - DEBUG - Attempting to click at (1836, 691) with lParam=45287212
+2024-12-12 21:40:36,931 - DEBUG - Attempting to click at (1836, 691) with lParam=45287212
+2024-12-12 21:42:05,268 - DEBUG - Attempting to click at (1836, 691) with lParam=45287212
+2024-12-12 21:42:13,837 - DEBUG - Attempting to click at (1836, 691) with lParam=45287212
+2024-12-12 21:42:40,309 - DEBUG - Attempting to click at (900, 691) with lParam=45286276

@@ -12,7 +12,7 @@ class LogManager:
             cls._instance = super().__new__(cls, *args, **kwargs)
         return cls._instance
 
-    def __init__(self, log_file="../application.log"):
+    def __init__(self, log_file="./application.log"):
         if hasattr(self, "_initialized") and self._initialized:
             return
         self._initialized = True
@@ -50,7 +50,7 @@ class ConfigManager:
             cls._instance = super().__new__(cls, *args, **kwargs)
         return cls._instance
 
-    def __init__(self, config_path="../configs.mana"):
+    def __init__(self, config_path="./configs.mana"):
         if hasattr(self, "_initialized") and self._initialized:
             return
         self._initialized = True
@@ -92,8 +92,8 @@ class ConfigManager:
     def get(self, key, default=None):
         """Get config by name, returning default value if not found."""
         value = self.config_data.get(key, default)
-        if value is default:
-            self.logger.log("info", f"Config key '{key}' not found. Returning default: {default}")
+        if value is None:
+            return default
         return value
 
     def set(self, key, value):
@@ -127,9 +127,12 @@ class ConfigManager:
     def validate_config(self, required_keys):
         """Validate if all required keys exist and have valid values."""
         missing_keys = [key for key in required_keys if key not in self.config_data]
+
         if missing_keys:
-            self.logger.log("error", f"Missing required configuration keys: {missing_keys}")
-            raise ValueError(f"Missing required keys: {missing_keys}")
+            self.logger.log("warning", f"Missing required configuration keys: {missing_keys}. Creating them with empty value.")
+            for key in missing_keys:
+                self.config_data[key] = None
+            self.save_config()
 
         # Validar os valores (exemplo: tipo e formato)
         for key in required_keys:

@@ -3,7 +3,7 @@ import os
 
 def list_structure(base_path, ignored_dirs=None):
     if ignored_dirs is None:
-        ignored_dirs = ["__pycache__", ".venv-mana"]
+        ignored_dirs = ["__pycache__", ".venv-mana", ".git", ".idea"]
 
     for root, dirs, files in os.walk(base_path):
         # Remove diretórios ignorados
