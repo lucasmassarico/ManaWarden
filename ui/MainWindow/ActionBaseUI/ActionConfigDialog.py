@@ -316,8 +316,8 @@ class UseItemConfigDialog(ActionConfigDialog):
 
         # Salva no action_instance
         self.action_instance.use_item = self.use_item
-        self.action_instance.item_path = self.item_path
-        self.action_instance.item_threshold = self.item_threshold
+        self.action_instance.icicle_path = self.item_path
+        self.action_instance.icicle_threshold = self.item_threshold
         self.action_instance.destination_region = self.destination_region
         self.action_instance.delay = self.delay
 

@@ -8,6 +8,7 @@ from utils import LogManager
 from datetime import datetime
 import random
 import cv2
+import numpy as np
 import os
 from settings import BASE_DIR
 
@@ -552,6 +553,201 @@ class UseItemAction(ImageAction):
                 self.logger.log("info", f"Ended action. Unblocking user mouse input.")
 
         self.logger.log("info", f"Item action completed.")
+
+    def execute(self):
+        if not self.validate_resources():
+            return
+
+        screen = self.capture_screen()
+        if screen is None:
+            return
+
+        item_position = self.find_item(screen)
+        if not item_position:
+            return
+
+        self.perform_movement(item_position)
+
+
+class CastIciclesMedivia(ImageAction):
+    def __init__(self, priority=5, instance_n: int = 1):
+        super().__init__(priority)
+
+        self.instance_n = instance_n
+
+        self.use_item = None
+        self.icicle_path = None
+        self.icicle_threshold = None
+        self.battle_region = None
+        self.panels_region = None
+        self.map_region = None
+        self.destination_region = None
+        self.delay = None
+        self._initialize()
+
+        self.config_manager.add_observer(f"use_item_{self.instance_n}", self)
+        self.config_manager.add_observer(f"icicle_path_{self.instance_n}", self)
+        self.config_manager.add_observer(f"icicle_threshold_{self.instance_n}", self)
+        self.config_manager.add_observer("panels_region", self)
+        self.config_manager.add_observer("battle_region", self)
+        self.config_manager.add_observer("map_region", self)
+        self.config_manager.add_observer(f"destination_region_{self.instance_n}", self)
+        self.config_manager.add_observer(f"delay_{self.instance_n}", self)
+
+    def _initialize(self):
+        """Initialize all configs need to execute action."""
+
+        required_keys = [
+            f"use_item_{self.instance_n}",
+            f"icicle_path_{self.instance_n}",
+            "battle_region",
+            "panels_region",
+            "map_region",
+            f"destination_region_{self.instance_n}",
+            f"delay_{self.instance_n}"
+        ]
+
+        try:
+            self.config_manager.validate_config(required_keys=required_keys)
+        except ValueError as e:
+            self.logger.log("error", f"Configuration validation failed: {e}")
+            raise
+
+        self.use_item = self.config_manager.get(key=f"use_item_{self.instance_n}", default=0)
+        self.icicle_path = self.config_manager.get(key=f"icicle_path_{self.instance_n}", default=None)
+        self.icicle_threshold = self.config_manager.get(key=f"icicle_threshold_{self.instance_n}", default=0.8)
+        self.battle_region = self.config_manager.get(key="battle_region", default=None)
+        self.panels_region = self.config_manager.get(key="panels_region", default=None)
+        self.map_region = self.config_manager.get(key="map_region", default=None)
+        self.destination_region = self.config_manager.get(key=f"destination_region_{self.instance_n}", default=None)
+        self.delay = self.config_manager.get(key=f"delay_{self.instance_n}", default=0.08)
+
+    def on_config_update(self, key, value):
+        """React in config update"""
+        if key == f"item_path_{self.instance_n}":
+            self.icicle_path = value
+            self.logger.log("info", f"Updated icicle_path_{self.instance_n} to {value}")
+        elif key == f"item_threshold_{self.instance_n}":
+            self.icicle_threshold = value
+            self.logger.log("info", f"Updated icicle_threshold_{self.instance_n} to {value}")
+        elif key == "battle_region":
+            self.battle_region = value
+            self.logger.log("info", f"Updated battle_region to {value}")
+        elif key == "panels_region":
+            self.panels_region = value
+            self.logger.log("info", f"Updated panels_region to {value}")
+        elif key == "map_region":
+            self.map_region = value
+            self.logger.log("info", f"Updated map_region to {value}")
+        elif key == f"destination_region_{self.instance_n}":
+            self.destination_region = value
+            self.logger.log("info", f"Updated destination_region_{self.instance_n} to {value}")
+        elif key == f"use_item_{self.instance_n}":
+            self.use_item = value
+            self.logger.log("info", f"Updated use_item_{self.instance_n} to {value}")
+        elif key == f"delay_{self.instance_n}":
+            self.delay = value
+            self.logger.log("info", f"Updated delay_{self.instance_n} to {value}")
+
+    def validate_resources(self):
+        if not self.validate_template(template_path=self.icicle_path, template_name=f"Item path {self.instance_n}"):
+            return False
+        return True
+
+    def find_item(self, screen):
+        self.logger.log("info", f"Searching for the item_{self.instance_n}")
+        for region in self.panels_region:
+            x, y, width, height = region
+            cropped_screen = screen[y:y+height, x:x+width]
+            item_position_in_region = self.screen_manager.find_image(
+                main_image=cropped_screen,
+                template=self.icicle_path,
+                threshold=self.icicle_threshold
+            )
+            if item_position_in_region:
+                return item_position_in_region[0] + x, item_position_in_region[1] + y
+        self.logger.log("error", f"item_{self.instance_n} not found")
+        return None
+
+    def find_red_pixel(self, screen):
+        """Encontra um pixel vermelho puro (#ff0000) dentro da região de batalha e seleciona o ponto médio no eixo X."""
+        for region in self.battle_region:
+            x, y, width, height = region
+            cropped_screen = screen[y:y + height, x:x + width]  # Recorta a região de batalha
+
+            # Converte para formato RGB caso a imagem seja BGR
+            cropped_screen = cv2.cvtColor(cropped_screen, cv2.COLOR_BGR2RGB)
+
+            # Encontra todos os pixels que correspondem a #ff0000 (255, 0, 0)
+            red_pixels = np.where(
+                (cropped_screen[:, :, 0] == 255) &  # Canal R (Vermelho)
+                (cropped_screen[:, :, 1] == 0) &  # Canal G (Verde)
+                (cropped_screen[:, :, 2] == 0)  # Canal B (Azul)
+            )
+
+            if len(red_pixels[0]) > 0:  # Se encontrou pelo menos um pixel vermelho
+                # Calcula a média dos valores no eixo X
+                mean_x = int(np.mean(red_pixels[1]))
+
+                # Encontra os índices onde X é aproximadamente igual à média
+                closest_indices = np.where(red_pixels[1] == mean_x)[0]
+
+                # Escolhe um Y correspondente a esse X médio
+                if len(closest_indices) > 0:
+                    index = random.choice(closest_indices)  # Escolhe um índice correspondente ao X médio
+                    target_x = mean_x + x + random.randint(-10, 10)  # Ajusta para a posição original da tela
+                    target_y = red_pixels[0][index] + y + 5
+                    return target_x, target_y
+
+        return None  # Nenhum pixel vermelho encontrado
+
+    def perform_movement(self, item_position):
+        """Realiza a movimentação para usar a magia."""
+        # Buscar a posição do alvo dentro da battle_region
+        target_position = self.find_red_pixel(self.capture_screen())
+
+        if not target_position:
+            self.logger.log("error", "Nenhum inimigo encontrado na região de batalha!")
+            return
+
+        target_x, target_y = target_position
+
+        self.logger.log("info", f"Clicking in item at position {item_position}")
+
+        if self.process_manager.is_foreground() or self.process_manager.is_mouse_over_window():
+            if not self.process_manager.medivia:
+                self.logger.log("info", "Window in the foreground or mouse over window. Blocking user mouse input.")
+                self.mouse_blocker.start_blocking()
+            else:
+                try:
+                    self.mouse_blocker.blocking_medivia()
+                except Exception:
+                    pass
+
+        if self.mouse_blocker.blocking:
+            time.sleep(self.delay)
+        self.process_manager.moveTo(*item_position)
+        if self.mouse_blocker.blocking:
+            time.sleep(self.delay)
+        self.process_manager.click(*item_position, button="right")
+
+        if self.use_item == 1:
+            if self.mouse_blocker.blocking:
+                time.sleep(self.delay)
+            self.logger.log("info", f"Using item at {target_x, target_y}")
+            self.process_manager.moveTo(target_x, target_y)
+            if self.mouse_blocker.blocking:
+                time.sleep(self.delay)
+            self.process_manager.click(target_x, target_y, button="left")
+
+        if self.mouse_blocker.blocking:
+            if self.process_manager.medivia:
+                self.mouse_blocker.unblocking_medivia()
+            else:
+                self.mouse_blocker.stop_blocking()
+                self.logger.log("info", "Ended action. Unblocking user mouse input.")
+
+        self.logger.log("info", "Item action completed.")
 
     def execute(self):
         if not self.validate_resources():
