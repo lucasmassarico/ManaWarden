@@ -302,7 +302,7 @@ class ScreenManager:
 
     @staticmethod
     def find_image(main_image, template, threshold=0.8, preprocess=False, binary_threshold_main=127, binary_threshold_template=127, all_matches=False,
-                   variation=3):
+                   variation=10):
         """
         Find a template image inside another image.
 
@@ -346,8 +346,8 @@ class ScreenManager:
             center_x = pt[0] + w // 2
             center_y = pt[1] + h // 2
 
-            random_offset_x = random.randint(-variation, variation)
-            random_offset_y = random.randint(-variation, variation)
+            random_offset_x = random.randint(-min(variation, w // 2), min(variation, w // 2))
+            random_offset_y = random.randint(-min(variation, h // 2), min(variation, h // 2))
             randomized_x = center_x + random_offset_x
             randomized_y = center_y + random_offset_y
 

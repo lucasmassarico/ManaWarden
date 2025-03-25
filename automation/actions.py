@@ -513,7 +513,10 @@ class UseItemAction(ImageAction):
         return None
 
     def perform_movement(self, item_position):
+        """Realiza o clique no item e na destination_region com randomização."""
         dest_x, dest_y = 0, 0
+        dest_width, dest_height = 0, 0
+
         if self.destination_region:
             dest_x, dest_y, dest_width, dest_height = self.destination_region
 
@@ -526,24 +529,34 @@ class UseItemAction(ImageAction):
             else:
                 try:
                     self.mouse_blocker.blocking_medivia()
-                except Exception as e:
+                except Exception:
                     pass
 
+        # Clicar no item encontrado
         if self.mouse_blocker.blocking:
             time.sleep(self.delay)
         self.process_manager.moveTo(*item_position)
         if self.mouse_blocker.blocking:
             time.sleep(self.delay)
         self.process_manager.click(*item_position, button="right")
+        time.sleep(self.delay)
 
+        # Aplicar randomização no clique da destination_region
         if self.use_item == 1 and self.destination_region:
+            # Criar um deslocamento aleatório dentro da região da destination_region
+            random_offset_x = random.randint(0, min(10, dest_width // 2)) * random.choice([-1, 1])
+            random_offset_y = random.randint(0, min(10, dest_height // 2)) * random.choice([-1, 1])
+
+            randomized_dest_x = dest_x + (dest_width // 2) + random_offset_x
+            randomized_dest_y = dest_y + (dest_height // 2) + random_offset_y
+
             if self.mouse_blocker.blocking:
                 time.sleep(self.delay)
-            self.logger.log("info", f"Using item at {dest_x, dest_y}")
-            self.process_manager.moveTo(dest_x, dest_y)
+            self.logger.log("info", f"Using item at randomized position ({randomized_dest_x}, {randomized_dest_y})")
+            self.process_manager.moveTo(randomized_dest_x, randomized_dest_y)
             if self.mouse_blocker.blocking:
                 time.sleep(self.delay)
-            self.process_manager.click(dest_x, dest_y, button="left")
+            self.process_manager.click(randomized_dest_x, randomized_dest_y, button="left")
 
         if self.mouse_blocker.blocking:
             if self.process_manager.medivia:
@@ -670,36 +683,49 @@ class CastIciclesMedivia(ImageAction):
         return None
 
     def find_red_pixel(self, screen):
-        """Encontra um pixel vermelho puro (#ff0000) dentro da região de batalha e seleciona o ponto médio no eixo X."""
+        """Encontra um pixel vermelho dentro da região de batalha e escolhe um aleatório."""
         for region in self.battle_region:
             x, y, width, height = region
             cropped_screen = screen[y:y + height, x:x + width]  # Recorta a região de batalha
 
-            # Converte para formato RGB caso a imagem seja BGR
+            # Converte para RGB se necessário
             cropped_screen = cv2.cvtColor(cropped_screen, cv2.COLOR_BGR2RGB)
 
-            # Encontra todos os pixels que correspondem a #ff0000 (255, 0, 0)
-            red_pixels = np.where(
-                (cropped_screen[:, :, 0] == 255) &  # Canal R (Vermelho)
-                (cropped_screen[:, :, 1] == 0) &  # Canal G (Verde)
-                (cropped_screen[:, :, 2] == 0)  # Canal B (Azul)
-            )
+            # (Opcional) Salvar a imagem recortada para debug
+            # cv2.imwrite(f"cropped_region_{x}_{y}.png", cropped_screen)
+
+            # Define limites para detectar vermelho (tolerância para pequenas variações)
+            # Ajuste os valores de lower_red e upper_red conforme a tonalidade exata que você deseja capturar
+            lower_red = np.array([180, 0, 0])
+            upper_red = np.array([255, 50, 50])
+
+            # Cria máscara para detectar vermelho
+            mask = cv2.inRange(cropped_screen, lower_red, upper_red)
+
+            # Obter coordenadas dos pixels vermelhos (y, x)
+            red_pixels = np.where(mask > 0)
 
             if len(red_pixels[0]) > 0:  # Se encontrou pelo menos um pixel vermelho
-                # Calcula a média dos valores no eixo X
-                mean_x = int(np.mean(red_pixels[1]))
+                # Escolhe um índice aleatório entre todos os pixels vermelhos
+                row_med = len(red_pixels[0]) // 2
+                array_window = len(red_pixels[0]) // 5
+                start_index = max(0, row_med - array_window)
+                end_index = min(len(red_pixels[0]) - 1, row_med + array_window)
+                random_index = random.randint(start_index, end_index)
+                # random_index = random.randrange(len(red_pixels[0]))
 
-                # Encontra os índices onde X é aproximadamente igual à média
-                closest_indices = np.where(red_pixels[1] == mean_x)[0]
+                # Obtém a posição desse pixel dentro do cropped
+                pixel_y = red_pixels[0][random_index]
+                pixel_x = red_pixels[1][random_index]
+                # print(f"pixel escolhido: Y({pixel_y}) X({pixel_x})")
 
-                # Escolhe um Y correspondente a esse X médio
-                if len(closest_indices) > 0:
-                    index = random.choice(closest_indices)  # Escolhe um índice correspondente ao X médio
-                    target_x = mean_x + x + random.randint(-10, 10)  # Ajusta para a posição original da tela
-                    target_y = red_pixels[0][index] + y + 5
-                    return target_x, target_y
+                target_x = x + pixel_x
+                target_y = y + pixel_y
 
-        return None  # Nenhum pixel vermelho encontrado
+                return target_x, target_y
+
+        # Caso não encontre nenhum pixel vermelho em nenhuma região
+        return None
 
     def perform_movement(self, item_position):
         """Realiza a movimentação para usar a magia."""

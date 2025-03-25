@@ -76,18 +76,27 @@ def mana_action_loop():
         current_action = "M"
         update_indicator(True, "M")
         action_mana.execute()
-        time.sleep(0.55)
+        time.sleep(0.55 + random.uniform(-0.05, 0.15))
     update_indicator(False, "")
 
 
 def hmm_action_loop():
     global running, current_action
-    action_hmm = UseItemAction(instance_n=25)
+    action_hmm = CastIciclesMedivia(instance_n=100)
     while running:
+        start_time = time.time()  # Marca o tempo inicial do loop
+
         current_action = "H"
         update_indicator(True, "H")
         action_hmm.execute()
-        time.sleep(1.50 + random.uniform(-0.01, 0.1))
+        # time.sleep(1.47)
+        time.sleep(1.47 + random.uniform(-0.02, 0.04))
+
+        end_time = time.time()  # Marca o tempo final do loop
+        elapsed_time = end_time - start_time  # Calcula o tempo decorrido
+
+        print(f"Terminou o loop: {end_time} | Tempo de execução: {elapsed_time:.4f} segundos")
+
     update_indicator(False, "")
 
 
@@ -147,9 +156,9 @@ def toggle_icicle():
 # Configurar atalhos do teclado
 keyboard.add_hotkey("ctrl+f9", toggle_fishing)
 keyboard.add_hotkey("ctrl+f10", toggle_mana)
-keyboard.add_hotkey("f4", toggle_hmm)
-# keyboard.add_hotkey("4", toggle_icicle)
-# keyboard.add_hotkey("2", toggle_uh)
+# keyboard.add_hotkey("4", toggle_hmm)
+keyboard.add_hotkey("4", toggle_icicle)
+keyboard.add_hotkey("2", toggle_uh)
 
 print("Press Ctrl+F9 to start/stop fishing.")
 print("Press Ctrl+F10 to start/stop MANA.")
