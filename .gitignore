@@ -1,2 +1,3 @@
 .venv-mana/
 .idea/
+process_manager/__pycache__/*

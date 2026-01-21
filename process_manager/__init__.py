@@ -537,20 +537,20 @@ class MouseBlocker:
         self.logger.log("info", f"Mouse unblocking.")
 
 
-# screen_manager = ScreenManager()
-# hwnd = win32gui.FindWindow(None, "Medivia")
-# screen_manager.set_window_handle(hwnd)
-#
-# regions_to_show = screen_manager.select_regions("Blank Rune Image",
-#                                                 multiple=False,
-#                                                 save_img="../assets/templates",
-#                                                 filename="blank_rune2")
-# if regions_to_show:
-#     print(regions_to_show, "regiao xdxd")
-#     print("Selected regions:")
-#     for idx, (x, y, w, h) in enumerate(regions_to_show, 1):
-#         print(f"Region {idx}: x={x}, y={y}, width={w}, height={h}")
-#
+screen_manager = ScreenManager()
+hwnd = win32gui.FindWindow(None, "RubinOT Client - Niih Monk")
+screen_manager.set_window_handle(hwnd)
+
+regions_to_show = screen_manager.select_regions("Blank Rune Image",
+                                                multiple=False,
+                                                save_img="../assets/templates",
+                                                filename="blank_rune2")
+if regions_to_show:
+    print(regions_to_show, "regiao xdxd")
+    print("Selected regions:")
+    for idx, (x, y, w, h) in enumerate(regions_to_show, 1):
+        print(f"Region {idx}: x={x}, y={y}, width={w}, height={h}")
+
 #
 # mouse_blocker = MouseBlocker()
 #
